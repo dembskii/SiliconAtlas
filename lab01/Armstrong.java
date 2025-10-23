@@ -1,9 +1,4 @@
-public class zad2 {
-    public static void main(String[] args) {
-        int n = 153; // przykładowa liczba, możesz zmienić na dowolną
-        System.out.println(isArmstrong(n));
-    }
-
+public class Armstrong {
     public static boolean isArmstrong(int n) {
         int temp = n;
         int digits = 0;
