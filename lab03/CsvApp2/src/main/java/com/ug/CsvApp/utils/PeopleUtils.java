@@ -1,24 +1,29 @@
-package com.ug.CsvApp.service;
+package com.ug.CsvApp.utils;
 
-import com.ug.CsvApp.domain.Person;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.springframework.stereotype.Service;
-
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.io.*;
 
-@Service
-public class CsvPersonService {
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
-    public List<Person> readPeopleFromClasspath(String resourceName) throws IOException {
+import com.ug.CsvApp.domain.Person;
+
+
+
+public class PeopleUtils {
+
+    private static List<Person> readPeopleFromClasspath(String resourceName) throws IOException {
         List<Person> people = new ArrayList<>();
 
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+        try (InputStream is = PeopleUtils.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (is == null) {
                 throw new FileNotFoundException(resourceName + " not found in classpath");
             }
@@ -34,10 +39,10 @@ public class CsvPersonService {
                     if (idStr.isEmpty()) continue; // pomiń rekordy bez id
 
                     UUID id = UUID.fromString(idStr);
-                    String firstName = getField(record, "name", "firstName");
-                    String lastName = getField(record, "surname", "lastName");
-                    String email = getField(record, "email");
-                    String yearStr = getField(record, "year_of_birth", "yearOfBirth");
+                    String firstName = PeopleUtils.getField(record, "name", "firstName");
+                    String lastName = PeopleUtils.getField(record, "surname", "lastName");
+                    String email = PeopleUtils.getField(record, "email");
+                    String yearStr = PeopleUtils.getField(record, "year_of_birth", "yearOfBirth");
                     int year = yearStr.isEmpty() ? 0 : Integer.parseInt(yearStr);
 
                     people.add(new Person(id, firstName, lastName, email, year));
@@ -49,12 +54,18 @@ public class CsvPersonService {
     }
 
     
-    public List<Person> readPeople() throws IOException {
-        return readPeopleFromClasspath("fake_people.csv");
+    public static List<Person> readPeople() {
+        List<Person> people = new ArrayList<>();
+        try {
+            people = readPeopleFromClasspath("fake_people.csv");
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return people;
     }
 
     // helper: zwraca pierwszą dopasowaną nazwę kolumny z podanych alternatyw
-    private String getField(CSVRecord record, String... names) {
+    private static String getField(CSVRecord record, String... names) {
         for (String n : names) {
             if (record.isMapped(n)) {
                 String v = record.get(n);
@@ -63,4 +74,5 @@ public class CsvPersonService {
         }
         return "";
     }
+    
 }
