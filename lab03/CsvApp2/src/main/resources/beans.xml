@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="xmlPersonAdam" class="com.ug.CsvApp.domain.Person">
+        <property name="firstName" value="Adam"/>
+        <property name="lastName" value="Xmlowy"/>
+        <property name="email" value="adam.xml@example.com"/>
+        <property name="yearOfBirth" value="1985"/>
+    </bean>
+
+    <bean id="xmlPersonEwa" class="com.ug.CsvApp.domain.Person">
+        <property name="firstName" value="Ewa"/>
+        <property name="lastName" value="Zawadzka"/>
+        <property name="email" value="ewa.xml@example.com"/>
+        <property name="yearOfBirth" value="1990"/>
+    </bean>
+
+</beans>
