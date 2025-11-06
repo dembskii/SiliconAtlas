@@ -48,7 +48,7 @@ public class CsvPersonService {
         return people;
     }
 
-    // wygodna metoda domyślna
+    
     public List<Person> readPeople() throws IOException {
         return readPeopleFromClasspath("fake_people.csv");
     }
