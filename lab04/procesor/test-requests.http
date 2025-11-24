@@ -1,0 +1,48 @@
+### Testowe żądania HTTP dla REST API
+### (Można używać bezpośrednio w VS Code z rozszerzeniem REST Client)
+
+### 1. GET - Pobierz wszystkie procesory
+GET http://localhost:8080/api/cpu
+
+###
+
+### 2. GET - Pobierz konkretny procesor (zamień {id} na prawdziwy UUID)
+GET http://localhost:8080/api/cpu/{id}
+
+###
+
+### 3. POST - Dodaj nowy procesor
+POST http://localhost:8080/api/cpu
+Content-Type: application/json
+
+{
+  "producer": "Intel Core i3-12100",
+  "cores": 4,
+  "threads": 8,
+  "frequencyGhz": 4.3
+}
+
+###
+
+### 4. PUT - Zaktualizuj procesor (zamień {id} na prawdziwy UUID)
+PUT http://localhost:8080/api/cpu/{id}
+Content-Type: application/json
+
+{
+  "producer": "Intel Core i3-12100F",
+  "cores": 4,
+  "threads": 8,
+  "frequencyGhz": 4.4
+}
+
+###
+
+### 5. DELETE - Usuń procesor (zamień {id} na prawdziwy UUID)
+DELETE http://localhost:8080/api/cpu/{id}
+
+###
+
+### Test przypadku błędu - nieistniejące ID
+GET http://localhost:8080/api/cpu/00000000-0000-0000-0000-000000000000
+
+###
