@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 
 @Entity
@@ -15,40 +16,46 @@ public class Cpu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private final UUID id;
+    private UUID id;
 
-
-    private String producer;
+    private String model;
     private int cores;
     private int threads;
     private double frequencyGhz;
 
-    @OneToOne(cascade = CascadeType.ALL)
+
+    @OneToOne
     @JoinColumn(name = "specification_id", referencedColumnName = "id")
     private CpuSpecification specification;
 
+    @OneToOne
+    @JoinColumn(name = "benchmark_id", referencedColumnName = "id")
+    private CpuBenchmark benchmark;
+
+    @ManyToOne
+    @JoinColumn(name = "manufacturer_id")
+    private Manufacturer manufacturer;
+
     public Cpu() {
-        this.id = UUID.randomUUID();
     }
 
     public Cpu(String model, int cores, int threads, double frequencyGhz) {
-        this.id = UUID.randomUUID();
-        this.producer = model;
+        this.model = model;
         this.cores = cores;
         this.threads = threads;
         this.frequencyGhz = frequencyGhz;
     }
 
-    public String getProducer() {
-        return producer;
-    }
-
-    public void setProducer(String producer) {
-        this.producer = producer;
-    }
-
     public UUID getId() {
         return id;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public int getCores() {
@@ -83,14 +90,29 @@ public class Cpu {
         this.specification = specification;
     }
 
+    public Manufacturer getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(Manufacturer manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public CpuBenchmark getBenchmark() {
+        return benchmark;
+    }
+
+    public void setBenchmark(CpuBenchmark benchmark) {
+        this.benchmark = benchmark;
+    }
+
     @Override
     public String toString() {
         return "Cpu{" +
-                "producer='" + producer + '\'' +
+                "model='" + model + '\'' +
                 ", cores=" + cores +
                 ", threads=" + threads +
                 ", frequencyGhz=" + frequencyGhz +
-                ", specification=" + specification +
                 '}';
     }
 }
