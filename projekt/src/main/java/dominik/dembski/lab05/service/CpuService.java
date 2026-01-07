@@ -1,0 +1,275 @@
+package dominik.dembski.lab05.service;
+
+import dominik.dembski.lab05.domain.Cpu;
+import dominik.dembski.lab05.domain.CpuBenchmark;
+import dominik.dembski.lab05.domain.Manufacturer;
+import dominik.dembski.lab05.domain.Technology;
+import dominik.dembski.lab05.dto.CpuComparisonDTO;
+import dominik.dembski.lab05.dto.CpuPerformanceDTO;
+import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
+import dominik.dembski.lab05.repository.CpuBenchmarkRepository;
+import dominik.dembski.lab05.repository.CpuRepository;
+import dominik.dembski.lab05.repository.ManufacturerRepository;
+import dominik.dembski.lab05.repository.TechnologyRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class CpuService {
+
+    private final CpuRepository cpuRepository;
+    private final CpuBenchmarkRepository benchmarkRepository;
+    private final ManufacturerRepository manufacturerRepository;
+    private final TechnologyRepository technologyRepository;
+
+    public CpuService(CpuRepository cpuRepository,
+                      CpuBenchmarkRepository benchmarkRepository,
+                      ManufacturerRepository manufacturerRepository,
+                      TechnologyRepository technologyRepository) {
+        this.cpuRepository = cpuRepository;
+        this.benchmarkRepository = benchmarkRepository;
+        this.manufacturerRepository = manufacturerRepository;
+        this.technologyRepository = technologyRepository;
+    }
+
+    // =====================================================
+    // PODSTAWOWE OPERACJE CRUD
+    // =====================================================
+
+    public Cpu addCpu(Cpu cpu) {
+        return cpuRepository.save(cpu);
+    }
+
+    public Optional<Cpu> getCpuById(UUID id) {
+        return cpuRepository.findById(id);
+    }
+
+    public List<Cpu> getAllCpus() {
+        List<Cpu> result = new ArrayList<>();
+        cpuRepository.findAll().forEach(result::add);
+        return result;
+    }
+
+    public void deleteCpuById(UUID id) {
+        cpuRepository.deleteById(id);
+    }
+
+    public Cpu updateCpu(UUID id, Cpu cpuDetails) {
+        Optional<Cpu> cpu = cpuRepository.findById(id);
+        if (cpu.isPresent()) {
+            Cpu existingCpu = cpu.get();
+            if (cpuDetails.getModel() != null) {
+                existingCpu.setModel(cpuDetails.getModel());
+            }
+            if (cpuDetails.getCores() > 0) {
+                existingCpu.setCores(cpuDetails.getCores());
+            }
+            if (cpuDetails.getThreads() > 0) {
+                existingCpu.setThreads(cpuDetails.getThreads());
+            }
+            if (cpuDetails.getFrequencyGhz() > 0) {
+                existingCpu.setFrequencyGhz(cpuDetails.getFrequencyGhz());
+            }
+            return cpuRepository.save(existingCpu);
+        }
+        return null;
+    }
+
+    // =====================================================
+    // ROZBUDOWANA LOGIKA BIZNESOWA (2+ repozytoriów)
+    // =====================================================
+
+    /**
+     * Tworzy nowy CPU z przypisaniem do producenta i technologii.
+     * Wykorzystuje: CpuRepository, ManufacturerRepository, TechnologyRepository
+     */
+    public Cpu createCpuWithManufacturerAndTechnologies(Cpu cpu, UUID manufacturerId, List<UUID> technologyIds) {
+        Optional<Manufacturer> manufacturer = manufacturerRepository.findById(manufacturerId);
+        if (manufacturer.isEmpty()) {
+            throw new IllegalArgumentException("Manufacturer not found with id: " + manufacturerId);
+        }
+        cpu.setManufacturer(manufacturer.get());
+
+        if (technologyIds != null && !technologyIds.isEmpty()) {
+            List<Technology> technologies = new ArrayList<>();
+            for (UUID techId : technologyIds) {
+                technologyRepository.findById(techId).ifPresent(technologies::add);
+            }
+            cpu.setTechnologies(technologies);
+        }
+
+        return cpuRepository.save(cpu);
+    }
+
+    /**
+     * Porównuje dwa procesory pod względem specyfikacji i wydajności.
+     * Wykorzystuje: CpuRepository, CpuBenchmarkRepository
+     */
+    public CpuComparisonDTO compareCpus(UUID cpuId1, UUID cpuId2) {
+        Optional<Cpu> cpu1Opt = cpuRepository.findById(cpuId1);
+        Optional<Cpu> cpu2Opt = cpuRepository.findById(cpuId2);
+
+        if (cpu1Opt.isEmpty() || cpu2Opt.isEmpty()) {
+            throw new IllegalArgumentException("One or both CPUs not found");
+        }
+
+        Cpu cpu1 = cpu1Opt.get();
+        Cpu cpu2 = cpu2Opt.get();
+
+        List<CpuBenchmark> benchmarks1 = benchmarkRepository.findByCpuId(cpuId1);
+        List<CpuBenchmark> benchmarks2 = benchmarkRepository.findByCpuId(cpuId2);
+
+        double avgScore1 = calculateAverageBenchmarkScore(benchmarks1);
+        double avgScore2 = calculateAverageBenchmarkScore(benchmarks2);
+
+        CpuComparisonDTO.CpuDetailsDTO details1 = createCpuDetails(cpu1, avgScore1);
+        CpuComparisonDTO.CpuDetailsDTO details2 = createCpuDetails(cpu2, avgScore2);
+
+        int wins1 = 0, wins2 = 0;
+
+        if (cpu1.getCores() > cpu2.getCores()) wins1++;
+        else if (cpu2.getCores() > cpu1.getCores()) wins2++;
+
+        if (cpu1.getThreads() > cpu2.getThreads()) wins1++;
+        else if (cpu2.getThreads() > cpu1.getThreads()) wins2++;
+
+        if (cpu1.getFrequencyGhz() > cpu2.getFrequencyGhz()) wins1++;
+        else if (cpu2.getFrequencyGhz() > cpu1.getFrequencyGhz()) wins2++;
+
+        if (avgScore1 > avgScore2) wins1++;
+        else if (avgScore2 > avgScore1) wins2++;
+
+        details1.setBenchmarkWins(wins1);
+        details2.setBenchmarkWins(wins2);
+
+        String winner = wins1 > wins2 ? cpu1.getModel() : 
+                       (wins2 > wins1 ? cpu2.getModel() : "Remis");
+
+        String summary = String.format(
+            "%s wygrywa w %d kategoriach, %s wygrywa w %d kategoriach. " +
+            "Średni wynik benchmark: %s=%.0f, %s=%.0f",
+            cpu1.getModel(), wins1, cpu2.getModel(), wins2,
+            cpu1.getModel(), avgScore1, cpu2.getModel(), avgScore2
+        );
+
+        return new CpuComparisonDTO(details1, details2, winner, summary);
+    }
+
+    /**
+     * Znajduje najwydajniejsze CPU dla danego producenta.
+     * Wykorzystuje: CpuRepository, CpuBenchmarkRepository, ManufacturerRepository
+     */
+    public List<CpuPerformanceDTO> getTopPerformingCpusByManufacturer(String manufacturerName, int limit) {
+        Optional<Manufacturer> manufacturer = manufacturerRepository.findByName(manufacturerName);
+        if (manufacturer.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Cpu> cpus = cpuRepository.findCpusWithBenchmarksByManufacturer(manufacturerName);
+
+        return cpus.stream()
+            .map(this::createPerformanceDTO)
+            .sorted(Comparator.comparing(CpuPerformanceDTO::getAvgPassmarkScore, 
+                    Comparator.nullsLast(Comparator.reverseOrder())))
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Pobiera statystyki producentów z agregacją danych.
+     * Wykorzystuje: CpuRepository (JPQL GROUP BY)
+     */
+    public List<ManufacturerStatsDTO> getManufacturerPerformanceStats() {
+        return cpuRepository.getManufacturerStatistics();
+    }
+
+    /**
+     * Rekomenduje CPU na podstawie wymagań użytkownika.
+     * Wykorzystuje: CpuRepository, CpuBenchmarkRepository
+     */
+    public List<CpuPerformanceDTO> recommendCpus(int minCores, double minFrequency, Integer minBenchmarkScore) {
+        List<Cpu> candidates = cpuRepository.findByCoresGreaterThanEqualAndFrequencyGhzGreaterThanEqual(
+            minCores, minFrequency);
+
+        return candidates.stream()
+            .map(cpu -> {
+                List<CpuBenchmark> benchmarks = benchmarkRepository.findByCpuId(cpu.getId());
+                return createPerformanceDTOWithBenchmarks(cpu, benchmarks);
+            })
+            .filter(dto -> {
+                if (minBenchmarkScore != null && dto.getAvgPassmarkScore() != null) {
+                    return dto.getAvgPassmarkScore() >= minBenchmarkScore;
+                }
+                return true;
+            })
+            .sorted(Comparator.comparing(CpuPerformanceDTO::getAvgPassmarkScore, 
+                    Comparator.nullsLast(Comparator.reverseOrder())))
+            .collect(Collectors.toList());
+    }
+
+    // =====================================================
+    // METODY POMOCNICZE
+    // =====================================================
+
+    private double calculateAverageBenchmarkScore(List<CpuBenchmark> benchmarks) {
+        if (benchmarks == null || benchmarks.isEmpty()) {
+            return 0.0;
+        }
+        return benchmarks.stream()
+            .mapToInt(CpuBenchmark::getPassmarkScore)
+            .average()
+            .orElse(0.0);
+    }
+
+    private CpuComparisonDTO.CpuDetailsDTO createCpuDetails(Cpu cpu, double avgScore) {
+        CpuComparisonDTO.CpuDetailsDTO details = new CpuComparisonDTO.CpuDetailsDTO();
+        details.setId(cpu.getId());
+        details.setModel(cpu.getModel());
+        details.setManufacturer(cpu.getManufacturer() != null ? cpu.getManufacturer().getName() : null);
+        details.setCores(cpu.getCores());
+        details.setThreads(cpu.getThreads());
+        details.setFrequencyGhz(cpu.getFrequencyGhz());
+        details.setAvgBenchmarkScore(avgScore);
+        if (cpu.getSpecification() != null) {
+            details.setTdpWatts(cpu.getSpecification().getTdpWatts());
+        }
+        return details;
+    }
+
+    private CpuPerformanceDTO createPerformanceDTO(Cpu cpu) {
+        List<CpuBenchmark> benchmarks = cpu.getBenchmarks() != null ? cpu.getBenchmarks() : new ArrayList<>();
+        return createPerformanceDTOWithBenchmarks(cpu, benchmarks);
+    }
+
+    private CpuPerformanceDTO createPerformanceDTOWithBenchmarks(Cpu cpu, List<CpuBenchmark> benchmarks) {
+        CpuPerformanceDTO dto = new CpuPerformanceDTO();
+        dto.setCpuId(cpu.getId());
+        dto.setCpuModel(cpu.getModel());
+        dto.setManufacturerName(cpu.getManufacturer() != null ? cpu.getManufacturer().getName() : null);
+        dto.setCores(cpu.getCores());
+        dto.setThreads(cpu.getThreads());
+        dto.setFrequencyGhz(cpu.getFrequencyGhz());
+        dto.setBenchmarkCount((long) benchmarks.size());
+
+        if (!benchmarks.isEmpty()) {
+            dto.setAvgSingleCoreScore(benchmarks.stream()
+                .mapToInt(CpuBenchmark::getSingleCoreScore).average().orElse(0));
+            dto.setAvgMultiCoreScore(benchmarks.stream()
+                .mapToInt(CpuBenchmark::getMultiCoreScore).average().orElse(0));
+            dto.setAvgPassmarkScore(benchmarks.stream()
+                .mapToInt(CpuBenchmark::getPassmarkScore).average().orElse(0));
+            dto.setMaxCinebenchR23(benchmarks.stream()
+                .mapToDouble(CpuBenchmark::getCinebenchR23).max().orElse(0));
+        }
+
+        return dto;
+    }
+}
