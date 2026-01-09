@@ -6,11 +6,18 @@ import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.dto.CpuComparisonDTO;
 import dominik.dembski.lab05.dto.CpuPerformanceDTO;
+import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
+import dominik.dembski.lab05.dto.PagedResponseDTO;
 import dominik.dembski.lab05.repository.CpuBenchmarkRepository;
 import dominik.dembski.lab05.repository.CpuRepository;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
 import dominik.dembski.lab05.repository.TechnologyRepository;
+import dominik.dembski.lab05.specification.CpuSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -271,5 +278,59 @@ public class CpuService {
         }
 
         return dto;
+    }
+
+    // =====================================================
+    // WIELOKRYTERIALNA WYSZUKIWARKA Z PAGINACJĄ
+    // =====================================================
+
+    /**
+     * Wyszukuje CPU według wielu kryteriów z obsługą paginacji i sortowania.
+     * 
+     * @param criteria kryteria wyszukiwania (wszystkie opcjonalne)
+     * @param page numer strony (0-indexed)
+     * @param size rozmiar strony
+     * @param sortBy pole do sortowania (model, cores, threads, frequencyGhz)
+     * @param sortDir kierunek sortowania (asc, desc)
+     * @return stronicowana odpowiedź z listą CPU
+     */
+    public PagedResponseDTO<Cpu> searchCpus(CpuSearchCriteriaDTO criteria, 
+                                             int page, int size, 
+                                             String sortBy, String sortDir) {
+        // Walidacja i domyślne wartości
+        if (page < 0) page = 0;
+        if (size <= 0 || size > 100) size = 10;
+        if (sortBy == null || sortBy.isEmpty()) sortBy = "model";
+        if (sortDir == null || sortDir.isEmpty()) sortDir = "asc";
+
+        // Utworzenie obiektu sortowania
+        Sort sort = sortDir.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+
+        // Utworzenie obiektu paginacji
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Wykonanie zapytania z wykorzystaniem Specification
+        Page<Cpu> cpuPage = cpuRepository.findAll(
+            CpuSpecification.fromCriteria(criteria), 
+            pageable
+        );
+
+        // Konwersja do DTO odpowiedzi
+        return new PagedResponseDTO<>(
+            cpuPage.getContent(),
+            cpuPage.getNumber(),
+            cpuPage.getSize(),
+            cpuPage.getTotalElements(),
+            cpuPage.getTotalPages()
+        );
+    }
+
+    /**
+     * Pobiera wszystkie CPU z paginacją (bez filtrowania).
+     */
+    public PagedResponseDTO<Cpu> getAllCpusPaged(int page, int size, String sortBy, String sortDir) {
+        return searchCpus(new CpuSearchCriteriaDTO(), page, size, sortBy, sortDir);
     }
 }

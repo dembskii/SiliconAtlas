@@ -3,7 +3,9 @@ package dominik.dembski.lab05.controller;
 import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.dto.CpuComparisonDTO;
 import dominik.dembski.lab05.dto.CpuPerformanceDTO;
+import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
+import dominik.dembski.lab05.dto.PagedResponseDTO;
 import dominik.dembski.lab05.service.CpuService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,5 +133,65 @@ public class CpuController {
             @RequestParam(required = false) Integer minBenchmark) {
         List<CpuPerformanceDTO> recommendations = cpuService.recommendCpus(minCores, minFrequency, minBenchmark);
         return ResponseEntity.ok(recommendations);
+    }
+
+    // =====================================================
+    // WIELOKRYTERIALNA WYSZUKIWARKA Z PAGINACJĄ
+    // =====================================================
+
+    /**
+     * Wyszukuje CPU według wielu kryteriów z paginacją i sortowaniem.
+     * 
+     * GET /api/cpus/search?model=Ryzen&manufacturer=AMD&minCores=8&maxCores=16
+     *     &minFrequency=3.0&maxFrequency=5.0&technology=SMT
+     *     &page=0&size=10&sortBy=cores&sortDir=desc
+     * 
+     * Wszystkie parametry są opcjonalne.
+     */
+    @GetMapping("/search")
+    public ResponseEntity<PagedResponseDTO<Cpu>> searchCpus(
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) String manufacturer,
+            @RequestParam(required = false) Integer minCores,
+            @RequestParam(required = false) Integer maxCores,
+            @RequestParam(required = false) Integer minThreads,
+            @RequestParam(required = false) Integer maxThreads,
+            @RequestParam(required = false) Double minFrequency,
+            @RequestParam(required = false) Double maxFrequency,
+            @RequestParam(required = false) String technology,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "model") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        // Budowanie DTO z kryteriami
+        CpuSearchCriteriaDTO criteria = new CpuSearchCriteriaDTO();
+        criteria.setModel(model);
+        criteria.setManufacturer(manufacturer);
+        criteria.setMinCores(minCores);
+        criteria.setMaxCores(maxCores);
+        criteria.setMinThreads(minThreads);
+        criteria.setMaxThreads(maxThreads);
+        criteria.setMinFrequency(minFrequency);
+        criteria.setMaxFrequency(maxFrequency);
+        criteria.setTechnology(technology);
+        
+        PagedResponseDTO<Cpu> result = cpuService.searchCpus(criteria, page, size, sortBy, sortDir);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Pobiera wszystkie CPU z paginacją (bez filtrowania).
+     * GET /api/cpus/paged?page=0&size=10&sortBy=model&sortDir=asc
+     */
+    @GetMapping("/paged")
+    public ResponseEntity<PagedResponseDTO<Cpu>> getAllCpusPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "model") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        PagedResponseDTO<Cpu> result = cpuService.getAllCpusPaged(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(result);
     }
 }
