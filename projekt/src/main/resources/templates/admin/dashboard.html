@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administratora - CPU Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        .navbar nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .navbar nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <nav>
+            <a th:href="@{/admin}">Dashboard</a>
+            <a th:href="@{/admin/cpus}">CPU</a>
+            <a th:href="@{/admin/manufacturers}">Producenci</a>
+            <a th:href="@{/admin/technologies}">Technologie</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <!-- Komunikaty -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <!-- Statystyki -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 th:text="${cpuCount}">0</h3>
+                <p>Procesorów w bazie</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${manufacturerCount}">0</h3>
+                <p>Producentów</p>
+            </div>
+            <div class="stat-card">
+                <h3 th:text="${technologyCount}">0</h3>
+                <p>Technologii</p>
+            </div>
+        </div>
+
+        <!-- Statystyki producentów -->
+        <div class="card">
+            <h2>📊 Statystyki producentów</h2>
+            <table th:if="${not #lists.isEmpty(manufacturerStats)}">
+                <thead>
+                    <tr>
+                        <th>Producent</th>
+                        <th>Liczba CPU</th>
+                        <th>Średnia rdzeni</th>
+                        <th>Średnia częstotliwość</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stat : ${manufacturerStats}">
+                        <td th:text="${stat.manufacturerName}">AMD</td>
+                        <td th:text="${stat.cpuCount}">10</td>
+                        <td th:text="${#numbers.formatDecimal(stat.avgCores, 1, 1)}">8.0</td>
+                        <td th:text="${#numbers.formatDecimal(stat.avgFrequency, 1, 2)} + ' GHz'">3.50 GHz</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${#lists.isEmpty(manufacturerStats)}" style="color: #666; text-align: center; padding: 2rem;">
+                Brak danych statystycznych. Dodaj procesory, aby zobaczyć statystyki.
+            </p>
+        </div>
+
+        <!-- Ostatnio dodane CPU -->
+        <div class="card">
+            <h2>🕐 Ostatnio dodane CPU</h2>
+            <table th:if="${not #lists.isEmpty(recentCpus)}">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Producent</th>
+                        <th>Rdzenie</th>
+                        <th>Wątki</th>
+                        <th>Częstotliwość</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cpu : ${recentCpus}">
+                        <td th:text="${cpu.model}">Ryzen 7 5800X</td>
+                        <td th:text="${cpu.manufacturer != null} ? ${cpu.manufacturer.name} : 'N/A'">AMD</td>
+                        <td th:text="${cpu.cores}">8</td>
+                        <td th:text="${cpu.threads}">16</td>
+                        <td th:text="${cpu.frequencyGhz} + ' GHz'">3.8 GHz</td>
+                        <td>
+                            <a th:href="@{/admin/cpus/{id}(id=${cpu.id})}" class="btn btn-info">Szczegóły</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${#lists.isEmpty(recentCpus)}" style="color: #666; text-align: center; padding: 2rem;">
+                Brak procesorów w bazie. <a th:href="@{/admin/cpus/new}" class="btn btn-primary">Dodaj pierwszy CPU</a>
+            </p>
+        </div>
+
+        <!-- Szybkie akcje -->
+        <div class="card">
+            <h2>⚡ Szybkie akcje</h2>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a th:href="@{/admin/cpus/new}" class="btn btn-primary">➕ Dodaj CPU</a>
+                <a th:href="@{/admin/manufacturers/new}" class="btn btn-success">➕ Dodaj Producenta</a>
+                <a th:href="@{/admin/technologies/new}" class="btn btn-info">➕ Dodaj Technologię</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

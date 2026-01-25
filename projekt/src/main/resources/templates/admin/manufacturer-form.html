@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodaj Producenta - Panel Administratora</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; color: #333; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 1.5rem; }
+        .navbar nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; }
+        .navbar nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 2rem; }
+        .card h2 { color: #333; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #667eea; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: #667eea; }
+        .btn { display: inline-block; padding: 0.75rem 1.5rem; border-radius: 5px; text-decoration: none; font-size: 1rem; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <nav>
+            <a th:href="@{/admin}">Dashboard</a>
+            <a th:href="@{/admin/cpus}">CPU</a>
+            <a th:href="@{/admin/manufacturers}">Producenci</a>
+            <a th:href="@{/admin/technologies}">Technologie</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>➕ Dodaj nowego producenta</h2>
+
+            <form th:action="@{/admin/manufacturers/new}" method="post" th:object="${manufacturer}">
+                <div class="form-group">
+                    <label for="name">Nazwa producenta *</label>
+                    <input type="text" id="name" th:field="*{name}" required placeholder="np. AMD, Intel">
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Kraj</label>
+                    <input type="text" id="country" th:field="*{country}" placeholder="np. USA, Taiwan">
+                </div>
+
+                <div class="form-group">
+                    <label for="foundedYear">Rok założenia</label>
+                    <input type="number" id="foundedYear" th:field="*{foundedYear}" min="1900" max="2030" placeholder="np. 1969">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Zapisz</button>
+                    <a th:href="@{/admin/manufacturers}" class="btn btn-secondary">❌ Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

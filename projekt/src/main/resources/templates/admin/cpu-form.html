@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit} ? 'Edytuj CPU' : 'Dodaj CPU'">Formularz CPU</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; color: #333; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar h1 { font-size: 1.5rem; }
+        .navbar nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; }
+        .navbar nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 2rem; }
+        .card h2 { color: #333; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #667eea; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+        .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .form-group small { display: block; margin-top: 0.25rem; color: #888; font-size: 0.85rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn { display: inline-block; padding: 0.75rem 1.5rem; border-radius: 5px; text-decoration: none; font-size: 1rem; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd6; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 150px; overflow-y: auto; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px; }
+        .checkbox-item { display: flex; align-items: center; padding: 0.5rem 1rem; background: #f8f9fa; border-radius: 5px; }
+        .checkbox-item input { margin-right: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <nav>
+            <a th:href="@{/admin}">Dashboard</a>
+            <a th:href="@{/admin/cpus}">CPU</a>
+            <a th:href="@{/admin/manufacturers}">Producenci</a>
+            <a th:href="@{/admin/technologies}">Technologie</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2 th:text="${isEdit} ? '✏️ Edytuj CPU' : '➕ Dodaj nowy CPU'">Formularz CPU</h2>
+
+            <form th:action="${isEdit} ? @{/admin/cpus/edit/{id}(id=${cpu.id})} : @{/admin/cpus/new}" 
+                  method="post" th:object="${cpu}">
+                
+                <div class="form-group">
+                    <label for="model">Nazwa modelu *</label>
+                    <input type="text" id="model" th:field="*{model}" required 
+                           placeholder="np. Ryzen 7 5800X">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cores">Liczba rdzeni *</label>
+                        <input type="number" id="cores" th:field="*{cores}" required min="1" max="128"
+                               placeholder="np. 8">
+                    </div>
+                    <div class="form-group">
+                        <label for="threads">Liczba wątków *</label>
+                        <input type="number" id="threads" th:field="*{threads}" required min="1" max="256"
+                               placeholder="np. 16">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="frequencyGhz">Częstotliwość (GHz) *</label>
+                    <input type="number" id="frequencyGhz" th:field="*{frequencyGhz}" required 
+                           step="0.1" min="0.1" max="10" placeholder="np. 3.8">
+                </div>
+
+                <div class="form-group" th:if="${not isEdit}">
+                    <label for="manufacturerId">Producent</label>
+                    <select id="manufacturerId" name="manufacturerId">
+                        <option value="">-- Wybierz producenta --</option>
+                        <option th:each="manufacturer : ${manufacturers}" 
+                                th:value="${manufacturer.id}" 
+                                th:text="${manufacturer.name}">AMD</option>
+                    </select>
+                    <small>Opcjonalne - możesz wybrać producenta później</small>
+                </div>
+
+                <div class="form-group" th:if="${not isEdit}">
+                    <label>Technologie</label>
+                    <div class="checkbox-group" th:if="${not #lists.isEmpty(technologies)}">
+                        <div class="checkbox-item" th:each="technology : ${technologies}">
+                            <input type="checkbox" name="technologyIds" th:value="${technology.id}" 
+                                   th:id="'tech-' + ${technology.id}">
+                            <label th:for="'tech-' + ${technology.id}" th:text="${technology.name}">SMT</label>
+                        </div>
+                    </div>
+                    <p th:if="${#lists.isEmpty(technologies)}" style="color: #888;">
+                        Brak dostępnych technologii. <a th:href="@{/admin/technologies/new}">Dodaj technologię</a>
+                    </p>
+                    <small>Opcjonalne - możesz wybrać wiele technologii</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span th:text="${isEdit} ? '💾 Zapisz zmiany' : '➕ Dodaj CPU'">Zapisz</span>
+                    </button>
+                    <a th:href="@{/admin/cpus}" class="btn btn-secondary">❌ Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

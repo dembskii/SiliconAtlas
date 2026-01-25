@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Szczegóły: ' + ${cpu.model}">Szczegóły CPU</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; color: #333; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar h1 { font-size: 1.5rem; }
+        .navbar nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.5rem 1rem; border-radius: 5px; transition: background 0.3s; }
+        .navbar nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 2rem; margin-bottom: 1.5rem; }
+        .card h2 { color: #333; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #667eea; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .detail-item { padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+        .detail-item label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 0.25rem; }
+        .detail-item span { font-size: 1.25rem; font-weight: 600; color: #333; }
+        .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: 5px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-group { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+        .badge { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; margin: 0.25rem; }
+        .badge-tech { background: #e3f2fd; color: #1565c0; }
+        .badge-manufacturer { background: #e8f5e9; color: #2e7d32; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <nav>
+            <a th:href="@{/admin}">Dashboard</a>
+            <a th:href="@{/admin/cpus}">CPU</a>
+            <a th:href="@{/admin/manufacturers}">Producenci</a>
+            <a th:href="@{/admin/technologies}">Technologie</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>🖥️ <span th:text="${cpu.model}">Ryzen 7 5800X</span></h2>
+            
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>ID</label>
+                    <span th:text="${cpu.id}" style="font-size: 0.85rem; word-break: break-all;">uuid</span>
+                </div>
+                <div class="detail-item">
+                    <label>Model</label>
+                    <span th:text="${cpu.model}">Ryzen 7 5800X</span>
+                </div>
+                <div class="detail-item">
+                    <label>Producent</label>
+                    <span class="badge badge-manufacturer" 
+                          th:text="${cpu.manufacturer != null} ? ${cpu.manufacturer.name} : 'Nie przypisano'">AMD</span>
+                </div>
+                <div class="detail-item">
+                    <label>Rdzenie</label>
+                    <span th:text="${cpu.cores}">8</span>
+                </div>
+                <div class="detail-item">
+                    <label>Wątki</label>
+                    <span th:text="${cpu.threads}">16</span>
+                </div>
+                <div class="detail-item">
+                    <label>Częstotliwość</label>
+                    <span th:text="${cpu.frequencyGhz} + ' GHz'">3.8 GHz</span>
+                </div>
+            </div>
+
+            <!-- Technologie -->
+            <div style="margin-top: 1.5rem;">
+                <label style="font-weight: 600; color: #555;">Technologie:</label>
+                <div style="margin-top: 0.5rem;">
+                    <span th:if="${cpu.technologies != null and not #lists.isEmpty(cpu.technologies)}" 
+                          th:each="tech : ${cpu.technologies}" class="badge badge-tech" th:text="${tech.name}">SMT</span>
+                    <span th:if="${cpu.technologies == null or #lists.isEmpty(cpu.technologies)}" 
+                          style="color: #888;">Brak przypisanych technologii</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a th:href="@{/admin/cpus/edit/{id}(id=${cpu.id})}" class="btn btn-warning">✏️ Edytuj</a>
+                <form th:action="@{/admin/cpus/delete/{id}(id=${cpu.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger" 
+                            onclick="return confirm('Czy na pewno chcesz usunąć ten procesor?')">🗑 Usuń</button>
+                </form>
+                <a th:href="@{/admin/cpus}" class="btn btn-secondary">← Powrót do listy</a>
+            </div>
+        </div>
+
+        <!-- Benchmarki -->
+        <div class="card">
+            <h2>📊 Wyniki benchmarków</h2>
+            <table th:if="${cpu.benchmarks != null and not #lists.isEmpty(cpu.benchmarks)}">
+                <thead>
+                    <tr>
+                        <th>Nazwa testu</th>
+                        <th>Single-Core</th>
+                        <th>Multi-Core</th>
+                        <th>PassMark</th>
+                        <th>Cinebench R23</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="benchmark : ${cpu.benchmarks}">
+                        <td th:text="${benchmark.testName}">Test 1</td>
+                        <td th:text="${benchmark.singleCoreScore}">1500</td>
+                        <td th:text="${benchmark.multiCoreScore}">12000</td>
+                        <td th:text="${benchmark.passmarkScore}">25000</td>
+                        <td th:text="${benchmark.cinebenchR23}">15000</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${cpu.benchmarks == null or #lists.isEmpty(cpu.benchmarks)}" style="color: #888; text-align: center; padding: 2rem;">
+                Brak wyników benchmarków dla tego procesora.
+            </p>
+        </div>
+
+        <!-- Specyfikacja -->
+        <div class="card" th:if="${cpu.specification != null}">
+            <h2>📋 Specyfikacja techniczna</h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Architektura</label>
+                    <span th:text="${cpu.specification.architecture ?: 'N/A'}">Zen 3</span>
+                </div>
+                <div class="detail-item">
+                    <label>Socket</label>
+                    <span th:text="${cpu.specification.socket ?: 'N/A'}">AM4</span>
+                </div>
+                <div class="detail-item">
+                    <label>TDP</label>
+                    <span th:text="${cpu.specification.tdp != null} ? ${cpu.specification.tdp} + ' W' : 'N/A'">105 W</span>
+                </div>
+                <div class="detail-item">
+                    <label>Cache L3</label>
+                    <span th:text="${cpu.specification.cacheL3 ?: 'N/A'}">32 MB</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

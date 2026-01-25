@@ -1,446 +1,1257 @@
 {
-  "info": {
-    "name": "CPU Management System API",
-    "description": "REST API collection for CPU Management System with CRUD operations, custom queries, and relationships testing",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Manufacturers",
-      "item": [
-        {
-          "name": "Add Manufacturer",
-          "request": {
-            "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Intel\",\n  \"country\": \"USA\",\n  \"foundedYear\": 1968\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/manufacturers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "manufacturers"]
-            }
-          }
-        },
-        {
-          "name": "Get All Manufacturers",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/manufacturers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "manufacturers"]
-            }
-          }
-        },
-        {
-          "name": "Get Manufacturer by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/manufacturers/{{manufacturerId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "manufacturers", "{{manufacturerId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Manufacturer",
-          "request": {
-            "method": "PUT",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Intel Corporation\",\n  \"country\": \"USA\",\n  \"foundedYear\": 1968\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/manufacturers/{{manufacturerId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "manufacturers", "{{manufacturerId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Manufacturer",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/manufacturers/{{manufacturerId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "manufacturers", "{{manufacturerId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "CPU Specifications",
-      "item": [
-        {
-          "name": "Add Specification",
-          "request": {
-            "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"cacheL1KB\": 256,\n  \"cacheL2KB\": 1024,\n  \"cacheL3MB\": 12,\n  \"tdpWatts\": 65,\n  \"socketType\": \"LGA1700\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/specifications",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "specifications"]
-            }
-          }
-        },
-        {
-          "name": "Get All Specifications",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/specifications",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "specifications"]
-            }
-          }
-        },
-        {
-          "name": "Get Specification by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/specifications/{{specificationId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "specifications", "{{specificationId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Specification",
-          "request": {
-            "method": "PUT",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"cacheL1KB\": 256,\n  \"cacheL2KB\": 1024,\n  \"cacheL3MB\": 12,\n  \"tdpWatts\": 68,\n  \"socketType\": \"LGA1700\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/specifications/{{specificationId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "specifications", "{{specificationId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Specification",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/specifications/{{specificationId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "specifications", "{{specificationId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "CPU Benchmarks",
-      "item": [
-        {
-          "name": "Add Benchmark",
-          "request": {
-            "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"singleCoreScore\": 1800,\n  \"multiCoreScore\": 8500,\n  \"passmarkScore\": 45000,\n  \"cinebenchR23\": 1850.5,\n  \"testDate\": \"2024-01-15\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/benchmarks",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "benchmarks"]
-            }
-          }
-        },
-        {
-          "name": "Get All Benchmarks",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/benchmarks",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "benchmarks"]
-            }
-          }
-        },
-        {
-          "name": "Get Benchmark by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/benchmarks/{{benchmarkId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "benchmarks", "{{benchmarkId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Benchmark",
-          "request": {
-            "method": "PUT",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"singleCoreScore\": 1850,\n  \"multiCoreScore\": 8800,\n  \"passmarkScore\": 45500,\n  \"cinebenchR23\": 1900.0,\n  \"testDate\": \"2024-01-15\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/benchmarks/{{benchmarkId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "benchmarks", "{{benchmarkId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Benchmark",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/benchmarks/{{benchmarkId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "benchmarks", "{{benchmarkId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "CPUs",
-      "item": [
-        {
-          "name": "Add CPU",
-          "request": {
-            "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"model\": \"Intel Core i7-13700K\",\n  \"cores\": 16,\n  \"threads\": 24,\n  \"frequencyGhz\": 3.4\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/cpus",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "cpus"]
-            }
-          }
-        },
-        {
-          "name": "Get All CPUs",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/cpus",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "cpus"]
-            }
-          }
-        },
-        {
-          "name": "Get CPU by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/cpus/{{cpuId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "cpus", "{{cpuId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update CPU",
-          "request": {
-            "method": "PUT",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"model\": \"Intel Core i9-13900K\",\n  \"cores\": 24,\n  \"threads\": 32,\n  \"frequencyGhz\": 3.6\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/cpus/{{cpuId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "cpus", "{{cpuId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete CPU",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/cpus/{{cpuId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "cpus", "{{cpuId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Technologies",
-      "item": [
-        {
-          "name": "Add Technology",
-          "request": {
-            "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"AVX-512\",\n  \"description\": \"Advanced Vector Extensions 512-bit\",\n  \"releaseYear\": 2013\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/technologies",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "technologies"]
-            }
-          }
-        },
-        {
-          "name": "Get All Technologies",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/technologies",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "technologies"]
-            }
-          }
-        },
-        {
-          "name": "Get Technology by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/technologies/{{technologyId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "technologies", "{{technologyId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Technology",
-          "request": {
-            "method": "PUT",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"AVX-512\",\n  \"description\": \"Advanced Vector Extensions 512-bit Intel Technology\",\n  \"releaseYear\": 2013\n}"
-            },
-            "url": {
-              "raw": "http://localhost:8080/api/technologies/{{technologyId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "technologies", "{{technologyId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Technology",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:8080/api/technologies/{{technologyId}}",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": ["8080"],
-              "path": ["api", "technologies", "{{technologyId}}"]
-            }
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "manufacturerId",
-      "value": "replace-with-actual-id"
-    },
-    {
-      "key": "cpuId",
-      "value": "replace-with-actual-id"
-    },
-    {
-      "key": "specificationId",
-      "value": "replace-with-actual-id"
-    },
-    {
-      "key": "benchmarkId",
-      "value": "replace-with-actual-id"
-    },
-    {
-      "key": "technologyId",
-      "value": "replace-with-actual-id"
-    }
-  ]
+	"info": {
+		"_postman_id": "cpu-database-api",
+		"name": "CPU Database API - Complete Collection",
+		"description": "Kompletna kolekcja testów API dla projektu CPU Database.\n\nZawiera testy dla wszystkich endpointów CRUD oraz logiki biznesowej.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "cpuId",
+			"value": ""
+		},
+		{
+			"key": "manufacturerId",
+			"value": ""
+		},
+		{
+			"key": "technologyId",
+			"value": ""
+		},
+		{
+			"key": "benchmarkId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Manufacturers",
+			"item": [
+				{
+					"name": "Create Manufacturer - AMD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('manufacturerId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Manufacturer name is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('AMD');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"AMD\",\n    \"country\": \"USA\",\n    \"foundedYear\": 1969\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Create Manufacturer - Intel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Intel\",\n    \"country\": \"USA\",\n    \"foundedYear\": 1968\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Get All Manufacturers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Array contains at least 2 manufacturers', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Get Manufacturer by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Manufacturer has correct id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('manufacturerId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Manufacturer - Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404 Not Found', function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers/00000000-0000-0000-0000-000000000000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "00000000-0000-0000-0000-000000000000"]
+						}
+					}
+				},
+				{
+					"name": "Update Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Manufacturer country updated', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.country).to.eql('United States');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"AMD\",\n    \"country\": \"United States\",\n    \"foundedYear\": 1969\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Technologies",
+			"item": [
+				{
+					"name": "Create Technology - SMT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('technologyId', jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"SMT\",\n    \"description\": \"Simultaneous Multithreading - AMD's technology for running multiple threads per core\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Create Technology - Hyper-Threading",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hyper-Threading\",\n    \"description\": \"Intel's proprietary SMT implementation\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Get All Technologies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Get Technology by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies", "{{technologyId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "CPUs",
+			"item": [
+				{
+					"name": "Create CPU - Basic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('cpuId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('CPU model is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.model).to.eql('Ryzen 7 5800X');",
+									"});",
+									"",
+									"pm.test('CPU has correct specs', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.cores).to.eql(8);",
+									"    pm.expect(jsonData.threads).to.eql(16);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 7 5800X\",\n    \"cores\": 8,\n    \"threads\": 16,\n    \"frequencyGhz\": 3.8\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus"]
+						}
+					}
+				},
+				{
+					"name": "Create CPU with Relations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('CPU has manufacturer assigned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('manufacturer');",
+									"    pm.expect(jsonData.manufacturer).to.not.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 9 5950X\",\n    \"cores\": 16,\n    \"threads\": 32,\n    \"frequencyGhz\": 3.4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/with-relations?manufacturerId={{manufacturerId}}&technologyIds={{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "with-relations"],
+							"query": [
+								{
+									"key": "manufacturerId",
+									"value": "{{manufacturerId}}"
+								},
+								{
+									"key": "technologyIds",
+									"value": "{{technologyId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All CPUs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Array contains CPUs', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus"]
+						}
+					}
+				},
+				{
+					"name": "Get CPU by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('CPU has correct id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('cpuId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get CPU - Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404 Not Found', function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/00000000-0000-0000-0000-000000000000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "00000000-0000-0000-0000-000000000000"]
+						}
+					}
+				},
+				{
+					"name": "Update CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('CPU frequency updated', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.frequencyGhz).to.eql(4.0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 7 5800X\",\n    \"cores\": 8,\n    \"threads\": 16,\n    \"frequencyGhz\": 4.0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Benchmarks",
+			"item": [
+				{
+					"name": "Add Benchmark to CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Benchmark has id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('benchmarkId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Benchmark linked to CPU', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('cpu');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"testName\": \"Cinebench R23 Test\",\n    \"singleCoreScore\": 1575,\n    \"multiCoreScore\": 15000,\n    \"passmarkScore\": 28000,\n    \"cinebenchR23\": 15500.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/cpu/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "cpu", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get All Benchmarks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks"]
+						}
+					}
+				},
+				{
+					"name": "Get Benchmark by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/{{benchmarkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "{{benchmarkId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get CPU Ranking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/ranking?sortBy=passmark&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "ranking"],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "passmark"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Benchmark Stats by Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/stats/manufacturer/AMD",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "stats", "manufacturer", "AMD"]
+						}
+					}
+				},
+				{
+					"name": "Get Multithreading Scaling Factor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/scaling-factor",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "scaling-factor"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Search & Pagination",
+			"item": [
+				{
+					"name": "Search CPUs - All Parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has pagination info', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('content');",
+									"    pm.expect(jsonData).to.have.property('pageNumber');",
+									"    pm.expect(jsonData).to.have.property('pageSize');",
+									"    pm.expect(jsonData).to.have.property('totalElements');",
+									"    pm.expect(jsonData).to.have.property('totalPages');",
+									"});",
+									"",
+									"pm.test('Content is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.content).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/search?model=Ryzen&minCores=4&page=0&size=10&sortBy=cores&sortDir=desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "search"],
+							"query": [
+								{
+									"key": "model",
+									"value": "Ryzen"
+								},
+								{
+									"key": "minCores",
+									"value": "4"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "cores"
+								},
+								{
+									"key": "sortDir",
+									"value": "desc"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search CPUs - By Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('All results are from AMD', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.content.forEach(function(cpu) {",
+									"        if (cpu.manufacturer) {",
+									"            pm.expect(cpu.manufacturer.name.toLowerCase()).to.include('amd');",
+									"        }",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/search?manufacturer=AMD",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "search"],
+							"query": [
+								{
+									"key": "manufacturer",
+									"value": "AMD"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search CPUs - By Frequency Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('All CPUs within frequency range', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.content.forEach(function(cpu) {",
+									"        pm.expect(cpu.frequencyGhz).to.be.at.least(3.0);",
+									"        pm.expect(cpu.frequencyGhz).to.be.at.most(5.0);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/search?minFrequency=3.0&maxFrequency=5.0",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "search"],
+							"query": [
+								{
+									"key": "minFrequency",
+									"value": "3.0"
+								},
+								{
+									"key": "maxFrequency",
+									"value": "5.0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Paged CPUs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Page size is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.pageSize).to.eql(5);",
+									"});",
+									"",
+									"pm.test('Page number is 0', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.pageNumber).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/paged?page=0&size=5&sortBy=model&sortDir=asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "paged"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "sortBy",
+									"value": "model"
+								},
+								{
+									"key": "sortDir",
+									"value": "asc"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Business Logic",
+			"item": [
+				{
+					"name": "Get Manufacturer Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/manufacturer-stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "manufacturer-stats"]
+						}
+					}
+				},
+				{
+					"name": "Get Top CPUs by Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/top-by-manufacturer?manufacturer=AMD&limit=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "top-by-manufacturer"],
+							"query": [
+								{
+									"key": "manufacturer",
+									"value": "AMD"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Recommend CPUs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('All CPUs meet minimum requirements', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(cpu) {",
+									"        pm.expect(cpu.cores).to.be.at.least(8);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/recommend?minCores=8&minFrequency=3.0",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "recommend"],
+							"query": [
+								{
+									"key": "minCores",
+									"value": "8"
+								},
+								{
+									"key": "minFrequency",
+									"value": "3.0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Compare CPUs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 400', function () {",
+									"    pm.expect([200, 400]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/compare?cpu1={{cpuId}}&cpu2={{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "compare"],
+							"query": [
+								{
+									"key": "cpu1",
+									"value": "{{cpuId}}"
+								},
+								{
+									"key": "cpu2",
+									"value": "{{cpuId}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "Delete Benchmark",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/benchmarks/{{benchmarkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "{{benchmarkId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Technology",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies", "{{technologyId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				}
+			]
+		}
+	]
 }
