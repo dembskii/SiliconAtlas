@@ -39,6 +39,13 @@ public class CpuBenchmarkService {
     // =====================================================
 
     public CpuBenchmark addBenchmark(CpuBenchmark benchmark) {
+        // Jeśli benchmark ma CPU, pobierz go z bazy aby mieć attached entity
+        if (benchmark.getCpu() != null && benchmark.getCpu().getId() != null) {
+            Cpu attachedCpu = cpuRepository.findById(benchmark.getCpu().getId()).orElse(null);
+            if (attachedCpu != null) {
+                benchmark.setCpu(attachedCpu);
+            }
+        }
         return cpuBenchmarkRepository.save(benchmark);
     }
 

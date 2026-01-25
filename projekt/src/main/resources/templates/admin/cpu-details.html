@@ -214,7 +214,7 @@
             <table th:if="${cpu.benchmarks != null and not #lists.isEmpty(cpu.benchmarks)}">
                 <thead>
                     <tr>
-                        <th>Nazwa testu</th>
+                        <th>Data testu</th>
                         <th>Single-Core</th>
                         <th>Multi-Core</th>
                         <th>PassMark</th>
@@ -223,7 +223,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="benchmark : ${cpu.benchmarks}">
-                        <td th:text="${benchmark.testName}">Test 1</td>
+                        <td th:text="${benchmark.testDate}">2024-01-15</td>
                         <td th:text="${benchmark.singleCoreScore}">1500</td>
                         <td th:text="${benchmark.multiCoreScore}">12000</td>
                         <td th:text="${benchmark.passmarkScore}">25000</td>
@@ -241,20 +241,24 @@
             <h2>Specyfikacja techniczna</h2>
             <div class="detail-grid">
                 <div class="detail-item">
-                    <label>Architektura</label>
-                    <span th:text="${cpu.specification.architecture ?: 'N/A'}">Zen 3</span>
-                </div>
-                <div class="detail-item">
                     <label>Socket</label>
-                    <span th:text="${cpu.specification.socket ?: 'N/A'}">AM4</span>
+                    <span th:text="${cpu.specification.socketType ?: 'N/A'}">AM4</span>
                 </div>
                 <div class="detail-item">
                     <label>TDP</label>
-                    <span th:text="${cpu.specification.tdp != null} ? ${cpu.specification.tdp} + ' W' : 'N/A'">105 W</span>
+                    <span th:text="${cpu.specification.tdpWatts} + ' W'">105 W</span>
+                </div>
+                <div class="detail-item">
+                    <label>Cache L1</label>
+                    <span th:text="${cpu.specification.cacheL1KB} + ' KB'">32 KB</span>
+                </div>
+                <div class="detail-item">
+                    <label>Cache L2</label>
+                    <span th:text="${cpu.specification.cacheL2KB} + ' KB'">512 KB</span>
                 </div>
                 <div class="detail-item">
                     <label>Cache L3</label>
-                    <span th:text="${cpu.specification.cacheL3 ?: 'N/A'}">32 MB</span>
+                    <span th:text="${cpu.specification.cacheL3MB} + ' MB'">32 MB</span>
                 </div>
             </div>
         </div>

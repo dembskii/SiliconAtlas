@@ -4,14 +4,21 @@ import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.domain.CpuSpecification;
 import dominik.dembski.lab05.domain.Manufacturer;
+import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.service.CpuService;
 import dominik.dembski.lab05.service.CpuBenchmarkService;
 import dominik.dembski.lab05.service.CpuSpecificationService;
 import dominik.dembski.lab05.service.ManufacturerService;
+import dominik.dembski.lab05.service.TechnologyService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @SpringBootApplication
 public class Lab05Application {
@@ -24,60 +31,150 @@ public class Lab05Application {
 	public CommandLineRunner setUpApp(CpuService cpuService,
 									   CpuBenchmarkService benchmarkService,
 									   CpuSpecificationService specificationService,
-									   ManufacturerService manufacturerService) {
+									   ManufacturerService manufacturerService,
+									   TechnologyService technologyService) {
 		return args -> {
-			// Dodanie producenta
-			Manufacturer manufacturer = new Manufacturer("Intel", "USA", 1968);
-			Manufacturer savedManufacturer = manufacturerService.addManufacturer(manufacturer);
-			System.out.println("Dodano producenta: " + savedManufacturer);
-
-			// Dodanie specyfikacji
-			CpuSpecification specification = new CpuSpecification(256, 1024, 12, 65, "LGA1700");
-			CpuSpecification savedSpec = specificationService.addSpecification(specification);
-			System.out.println("Dodano specyfikację: " + savedSpec);
-
-			// Dodanie benchmarku
-			CpuBenchmark benchmark = new CpuBenchmark(1800, 8500, 45000, 1850.5, "2024-01-15");
-			CpuBenchmark savedBenchmark = benchmarkService.addBenchmark(benchmark);
-			System.out.println("Dodano benchmark: " + savedBenchmark);
-
-			// Dodanie procesora
-			Cpu cpu = new Cpu("Intel Core i7-13700K", 16, 24, 3.4);
-			Cpu savedCpu = cpuService.addCpu(cpu);
-			System.out.println("Dodano CPU: " + savedCpu);
-
-			// Pobranie procesora po ID
-			var retrievedCpu = cpuService.getCpuById(savedCpu.getId());
-			if (retrievedCpu.isPresent()) {
-				System.out.println("Pobrano CPU: " + retrievedCpu.get());
-			}
-
-			// Pobranie wszystkich procesorów
-			System.out.println("Wszystkie CPU w systemie:");
-			cpuService.getAllCpus().forEach(c -> System.out.println("  - " + c));
-
-			// Pobranie wszystkich producentów
-			System.out.println("Wszyscy producenci w systemie:");
+			// ===== PRODUCENCI =====
+			System.out.println("========== INICJALIZACJA PRODUCENTÓW ==========");
+			
+			Manufacturer intel = new Manufacturer("Intel", "USA", 1968);
+			Manufacturer savedIntel = manufacturerService.addManufacturer(intel);
+			System.out.println("Dodano producenta: " + savedIntel);
+			
+			Manufacturer amd = new Manufacturer("AMD", "USA", 1969);
+			Manufacturer savedAmd = manufacturerService.addManufacturer(amd);
+			System.out.println("Dodano producenta: " + savedAmd);
+			
+			// ===== TECHNOLOGIE =====
+			System.out.println("\n========== INICJALIZACJA TECHNOLOGII ==========");
+			
+			Technology hyper = new Technology("Hyper-Threading", "Technologia wielowątkowości Intela", 2002);
+			Technology savedHyper = technologyService.addTechnology(hyper);
+			System.out.println("Dodano technologię: " + savedHyper);
+			
+			Technology smt = new Technology("SMT", "Simultaneous Multithreading - wielowątkowość AMD", 2003);
+			Technology savedSmt = technologyService.addTechnology(smt);
+			System.out.println("Dodano technologię: " + savedSmt);
+			
+			Technology rdna = new Technology("RDNA", "Architektura RDNA dla procesorów AMD", 2019);
+			Technology savedRdna = technologyService.addTechnology(rdna);
+			System.out.println("Dodano technologię: " + savedRdna);
+			
+			// Pobierz technologie z bazy - to są attached entities
+			Technology hyperRefresh = technologyService.getTechnologyById(savedHyper.getId()).get();
+			Technology smtRefresh = technologyService.getTechnologyById(savedSmt.getId()).get();
+			Technology rdnaRefresh = technologyService.getTechnologyById(savedRdna.getId()).get();
+			
+			// ===== PROCESORY INTEL =====
+			System.out.println("\n========== INICJALIZACJA PROCESORÓW INTEL ==========");
+			
+			// Intel CPU 1: Core i9-13900K
+			Cpu intel1 = new Cpu("Intel Core i9-13900K", 24, 32, 3.0);
+			CpuSpecification spec1 = new CpuSpecification(36, 1440, 24, 125, "LGA1700");
+			intel1.setSpecification(spec1);
+			Cpu savedIntel1 = cpuService.addCpu(intel1);
+			cpuService.assignManufacturerToCpu(savedIntel1.getId(), savedIntel.getId());
+			cpuService.assignTechnologiesToCpu(savedIntel1.getId(), Arrays.asList(hyperRefresh.getId()));
+			System.out.println("Dodano CPU: " + savedIntel1);
+			
+			// Pobierz CPU z bazy dla benchmarków
+			Cpu intel1FromDb = cpuService.getCpuById(savedIntel1.getId()).get();
+			CpuBenchmark benchmark1_1 = new CpuBenchmark(2150, 16800, 58000, 2180.5, "2024-01-15");
+			benchmark1_1.setCpu(intel1FromDb);
+			benchmarkService.addBenchmark(benchmark1_1);
+			System.out.println("Dodano benchmark 1 do Intel i9-13900K");
+			
+			Cpu intel1FromDb2 = cpuService.getCpuById(savedIntel1.getId()).get();
+			CpuBenchmark benchmark1_2 = new CpuBenchmark(2200, 17200, 59500, 2250.0, "2024-02-01");
+			benchmark1_2.setCpu(intel1FromDb2);
+			benchmarkService.addBenchmark(benchmark1_2);
+			System.out.println("Dodano benchmark 2 do Intel i9-13900K");
+			
+			// Intel CPU 2: Core i7-13700K
+			Cpu intel2 = new Cpu("Intel Core i7-13700K", 16, 24, 3.4);
+			CpuSpecification spec2 = new CpuSpecification(30, 960, 20, 125, "LGA1700");
+			intel2.setSpecification(spec2);
+			Cpu savedIntel2 = cpuService.addCpu(intel2);
+			cpuService.assignManufacturerToCpu(savedIntel2.getId(), savedIntel.getId());
+			cpuService.assignTechnologiesToCpu(savedIntel2.getId(), Arrays.asList(hyperRefresh.getId()));
+			System.out.println("Dodano CPU: " + savedIntel2);
+			
+			Cpu intel2FromDb = cpuService.getCpuById(savedIntel2.getId()).get();
+			CpuBenchmark benchmark2_1 = new CpuBenchmark(1950, 13500, 48000, 1980.0, "2024-01-10");
+			benchmark2_1.setCpu(intel2FromDb);
+			benchmarkService.addBenchmark(benchmark2_1);
+			System.out.println("Dodano benchmark do Intel i7-13700K");
+			
+			// Intel CPU 3: Core i5-13600K
+			Cpu intel3 = new Cpu("Intel Core i5-13600K", 14, 20, 3.5);
+			CpuSpecification spec3 = new CpuSpecification(24, 768, 16, 125, "LGA1700");
+			intel3.setSpecification(spec3);
+			Cpu savedIntel3 = cpuService.addCpu(intel3);
+			cpuService.assignManufacturerToCpu(savedIntel3.getId(), savedIntel.getId());
+			cpuService.assignTechnologiesToCpu(savedIntel3.getId(), Arrays.asList(hyperRefresh.getId()));
+			System.out.println("Dodano CPU: " + savedIntel3);
+			
+			Cpu intel3FromDb = cpuService.getCpuById(savedIntel3.getId()).get();
+			CpuBenchmark benchmark3_1 = new CpuBenchmark(1750, 10500, 40000, 1780.0, "2024-01-12");
+			benchmark3_1.setCpu(intel3FromDb);
+			benchmarkService.addBenchmark(benchmark3_1);
+			System.out.println("Dodano benchmark do Intel i5-13600K");
+			
+			// ===== PROCESORY AMD =====
+			System.out.println("\n========== INICJALIZACJA PROCESORÓW AMD ==========");
+			
+			// AMD CPU 1: Ryzen 9 7950X
+			Cpu amd1 = new Cpu("AMD Ryzen 9 7950X", 16, 32, 4.5);
+			CpuSpecification spec4 = new CpuSpecification(64, 2048, 16, 170, "AM5");
+			amd1.setSpecification(spec4);
+			Cpu savedAmd1 = cpuService.addCpu(amd1);
+			cpuService.assignManufacturerToCpu(savedAmd1.getId(), savedAmd.getId());
+			cpuService.assignTechnologiesToCpu(savedAmd1.getId(), Arrays.asList(smtRefresh.getId(), rdnaRefresh.getId()));
+			System.out.println("Dodano CPU: " + savedAmd1);
+			
+			Cpu amd1FromDb = cpuService.getCpuById(savedAmd1.getId()).get();
+			CpuBenchmark benchmark4_1 = new CpuBenchmark(2050, 16200, 56000, 2100.0, "2024-01-18");
+			benchmark4_1.setCpu(amd1FromDb);
+			benchmarkService.addBenchmark(benchmark4_1);
+			System.out.println("Dodano benchmark 1 do AMD Ryzen 9 7950X");
+			
+			Cpu amd1FromDb2 = cpuService.getCpuById(savedAmd1.getId()).get();
+			CpuBenchmark benchmark4_2 = new CpuBenchmark(2100, 16500, 57000, 2150.0, "2024-02-05");
+			benchmark4_2.setCpu(amd1FromDb2);
+			benchmarkService.addBenchmark(benchmark4_2);
+			System.out.println("Dodano benchmark 2 do AMD Ryzen 9 7950X");
+			
+			// AMD CPU 2: Ryzen 7 7700X
+			Cpu amd2 = new Cpu("AMD Ryzen 7 7700X", 8, 16, 4.5);
+			CpuSpecification spec5 = new CpuSpecification(32, 1024, 12, 105, "AM5");
+			amd2.setSpecification(spec5);
+			Cpu savedAmd2 = cpuService.addCpu(amd2);
+			cpuService.assignManufacturerToCpu(savedAmd2.getId(), savedAmd.getId());
+			cpuService.assignTechnologiesToCpu(savedAmd2.getId(), Arrays.asList(smtRefresh.getId(), rdnaRefresh.getId()));
+			System.out.println("Dodano CPU: " + savedAmd2);
+			
+			Cpu amd2FromDb = cpuService.getCpuById(savedAmd2.getId()).get();
+			CpuBenchmark benchmark5_1 = new CpuBenchmark(1850, 12800, 44000, 1900.0, "2024-01-20");
+			benchmark5_1.setCpu(amd2FromDb);
+			benchmarkService.addBenchmark(benchmark5_1);
+			System.out.println("Dodano benchmark do AMD Ryzen 7 7700X");
+			
+			// ===== WYŚWIETLENIE DANYCH =====
+			System.out.println("\n========== PODSUMOWANIE ==========");
+			
+			System.out.println("\nWszyscy producenci:");
 			manufacturerService.getAllManufacturers().forEach(m -> System.out.println("  - " + m));
-
-			// Pobranie wszystkich specyfikacji
-			System.out.println("Wszystkie specyfikacje w systemie:");
-			specificationService.getAllSpecifications().forEach(s -> System.out.println("  - " + s));
-
-			// Pobranie wszystkich benchmarków
-			System.out.println("Wszystkie benchmarki w systemie:");
+			
+			System.out.println("\nWszystkie technologie:");
+			technologyService.getAllTechnologies().forEach(t -> System.out.println("  - " + t));
+			
+			System.out.println("\nWszystkie procesory:");
+			cpuService.getAllCpus().forEach(c -> System.out.println("  - " + c));
+			
+			System.out.println("\nWszystkie benchmarki:");
 			benchmarkService.getAllBenchmarks().forEach(b -> System.out.println("  - " + b));
-
-			// Aktualizacja procesora
-			Cpu updateData = new Cpu();
-			updateData.setModel("Intel Core i9-13900K");
-			updateData.setFrequencyGhz(3.6);
-			Cpu updatedCpu = cpuService.updateCpu(savedCpu.getId(), updateData);
-			System.out.println("Zaktualizowano CPU: " + updatedCpu);
-
-			// Usunięcie benchmarku
-			benchmarkService.deleteBenchmarkById(savedBenchmark.getId());
-			System.out.println("Usunięto benchmark o ID: " + savedBenchmark.getId());
+			
+			System.out.println("\n========== INICJALIZACJA ZAKOŃCZONA ==========\n");
 		};
 	}
 
