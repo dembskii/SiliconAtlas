@@ -328,6 +328,36 @@ public class CpuService {
     }
 
     /**
+     * Przypisuje producenta do istniejącego CPU
+     */
+    public void assignManufacturerToCpu(UUID cpuId, UUID manufacturerId) {
+        Optional<Cpu> cpuOpt = cpuRepository.findById(cpuId);
+        Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(manufacturerId);
+        
+        if (cpuOpt.isPresent() && manufacturerOpt.isPresent()) {
+            Cpu cpu = cpuOpt.get();
+            cpu.setManufacturer(manufacturerOpt.get());
+            cpuRepository.save(cpu);
+        }
+    }
+
+    /**
+     * Przypisuje technologie do istniejącego CPU
+     */
+    public void assignTechnologiesToCpu(UUID cpuId, List<UUID> technologyIds) {
+        Optional<Cpu> cpuOpt = cpuRepository.findById(cpuId);
+        if (cpuOpt.isPresent()) {
+            Cpu cpu = cpuOpt.get();
+            List<Technology> technologies = new ArrayList<>();
+            for (UUID techId : technologyIds) {
+                technologyRepository.findById(techId).ifPresent(technologies::add);
+            }
+            cpu.setTechnologies(technologies);
+            cpuRepository.save(cpu);
+        }
+    }
+
+    /**
      * Pobiera wszystkie CPU z paginacją (bez filtrowania).
      */
     public PagedResponseDTO<Cpu> getAllCpusPaged(int page, int size, String sortBy, String sortDir) {

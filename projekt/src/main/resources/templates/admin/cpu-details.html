@@ -146,7 +146,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -157,7 +157,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>🖥️ <span th:text="${cpu.model}">Ryzen 7 5800X</span></h2>
+            <h2><span th:text="${cpu.model}">Ryzen 7 5800X</span></h2>
             
             <div class="detail-grid">
                 <div class="detail-item">
@@ -199,18 +199,18 @@
             </div>
 
             <div class="btn-group">
-                <a th:href="@{/admin/cpus/edit/{id}(id=${cpu.id})}" class="btn btn-warning">✏️ Edytuj</a>
+                <a th:href="@{/admin/cpus/edit/{id}(id=${cpu.id})}" class="btn btn-warning">Edytuj</a>
                 <form th:action="@{/admin/cpus/delete/{id}(id=${cpu.id})}" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-danger" 
-                            onclick="return confirm('Czy na pewno chcesz usunąć ten procesor?')">🗑 Usuń</button>
+                            onclick="return confirm('Czy na pewno chcesz usunąć ten procesor?')">Usuń</button>
                 </form>
-                <a th:href="@{/admin/cpus}" class="btn btn-secondary">← Powrót do listy</a>
+                <a th:href="@{/admin/cpus}" class="btn btn-secondary">Powrót do listy</a>
             </div>
         </div>
 
         <!-- Benchmarki -->
         <div class="card">
-            <h2>📊 Wyniki benchmarków</h2>
+            <h2>Wyniki benchmarków</h2>
             <table th:if="${cpu.benchmarks != null and not #lists.isEmpty(cpu.benchmarks)}">
                 <thead>
                     <tr>
@@ -238,7 +238,7 @@
 
         <!-- Specyfikacja -->
         <div class="card" th:if="${cpu.specification != null}">
-            <h2>📋 Specyfikacja techniczna</h2>
+            <h2>Specyfikacja techniczna</h2>
             <div class="detail-grid">
                 <div class="detail-item">
                     <label>Architektura</label>

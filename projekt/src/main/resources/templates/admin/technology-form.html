@@ -99,7 +99,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -110,7 +110,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>➕ Dodaj nową technologię</h2>
+            <h2>Dodaj nową technologię</h2>
 
             <form th:action="@{/admin/technologies/new}" method="post" th:object="${technology}">
                 <div class="form-group">
@@ -125,8 +125,8 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">💾 Zapisz</button>
-                    <a th:href="@{/admin/technologies}" class="btn btn-secondary">❌ Anuluj</a>
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                    <a th:href="@{/admin/technologies}" class="btn btn-secondary">Anuluj</a>
                 </div>
             </form>
         </div>

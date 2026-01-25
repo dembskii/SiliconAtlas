@@ -125,7 +125,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -166,23 +166,25 @@
                            step="0.1" min="0.1" max="10" placeholder="np. 3.8">
                 </div>
 
-                <div class="form-group" th:if="${not isEdit}">
+                <div class="form-group">
                     <label for="manufacturerId">Producent</label>
                     <select id="manufacturerId" name="manufacturerId">
                         <option value="">-- Wybierz producenta --</option>
                         <option th:each="manufacturer : ${manufacturers}" 
                                 th:value="${manufacturer.id}" 
-                                th:text="${manufacturer.name}">AMD</option>
+                                th:text="${manufacturer.name}"
+                                th:selected="${isEdit and cpu.manufacturer != null and cpu.manufacturer.id == manufacturer.id}">AMD</option>
                     </select>
-                    <small>Opcjonalne - możesz wybrać producenta później</small>
+                    <small>Opcjonalne</small>
                 </div>
 
-                <div class="form-group" th:if="${not isEdit}">
+                <div class="form-group">
                     <label>Technologie</label>
                     <div class="checkbox-group" th:if="${not #lists.isEmpty(technologies)}">
                         <div class="checkbox-item" th:each="technology : ${technologies}">
                             <input type="checkbox" name="technologyIds" th:value="${technology.id}" 
-                                   th:id="'tech-' + ${technology.id}">
+                                   th:id="'tech-' + ${technology.id}"
+                                   th:checked="${isEdit and cpu.technologies != null and #lists.contains(cpu.technologies, technology)}">
                             <label th:for="'tech-' + ${technology.id}" th:text="${technology.name}">SMT</label>
                         </div>
                     </div>

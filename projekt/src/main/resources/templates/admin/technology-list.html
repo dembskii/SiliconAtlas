@@ -114,7 +114,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -129,8 +129,8 @@
 
         <div class="card">
             <div class="card-header">
-                <h2>⚡ Lista technologii</h2>
-                <a th:href="@{/admin/technologies/new}" class="btn btn-primary">➕ Dodaj technologię</a>
+                <h2>Lista technologii</h2>
+                <a th:href="@{/admin/technologies/new}" class="btn btn-primary">Dodaj technologię</a>
             </div>
 
             <table th:if="${not #lists.isEmpty(technologies)}">
@@ -148,7 +148,7 @@
                         <td>
                             <form th:action="@{/admin/technologies/delete/{id}(id=${technology.id})}" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-danger" 
-                                        onclick="return confirm('Czy na pewno chcesz usunąć tę technologię?')">🗑 Usuń</button>
+                                        onclick="return confirm('Czy na pewno chcesz usu nąć tę technologię?')">Usuń</button>
                             </form>
                         </td>
                     </tr>
@@ -156,10 +156,9 @@
             </table>
 
             <div th:if="${#lists.isEmpty(technologies)}" class="empty-state">
-                <p style="font-size: 3rem; margin-bottom: 1rem;">⚡</p>
                 <h3>Brak technologii w bazie</h3>
                 <p style="margin: 1rem 0;">Dodaj pierwszą technologię, aby móc przypisywać ją do CPU.</p>
-                <a th:href="@{/admin/technologies/new}" class="btn btn-primary">➕ Dodaj technologię</a>
+                <a th:href="@{/admin/technologies/new}" class="btn btn-primary">Dodaj technologię</a>
             </div>
         </div>
     </div>

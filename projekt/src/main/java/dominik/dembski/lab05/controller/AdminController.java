@@ -130,10 +130,20 @@ public class AdminController {
     @PostMapping("/cpus/edit/{id}")
     public String updateCpu(@PathVariable UUID id,
                            @ModelAttribute Cpu cpu,
+                           @RequestParam(required = false) UUID manufacturerId,
+                           @RequestParam(required = false) List<UUID> technologyIds,
                            RedirectAttributes redirectAttributes) {
         try {
             Cpu updated = cpuService.updateCpu(id, cpu);
             if (updated != null) {
+                // Aktualizuj producenta jeśli został wybrany
+                if (manufacturerId != null) {
+                    cpuService.assignManufacturerToCpu(id, manufacturerId);
+                }
+                // Aktualizuj technologie jeśli zostały wybrane
+                if (technologyIds != null && !technologyIds.isEmpty()) {
+                    cpuService.assignTechnologiesToCpu(id, technologyIds);
+                }
                 redirectAttributes.addFlashAttribute("successMessage", "CPU zostało pomyślnie zaktualizowane!");
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "CPU o podanym ID nie istnieje!");

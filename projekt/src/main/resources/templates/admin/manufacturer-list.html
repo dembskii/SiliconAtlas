@@ -118,7 +118,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -133,8 +133,8 @@
 
         <div class="card">
             <div class="card-header">
-                <h2>🏭 Lista producentów</h2>
-                <a th:href="@{/admin/manufacturers/new}" class="btn btn-primary">➕ Dodaj producenta</a>
+                <h2>Lista producentów</h2>
+                <a th:href="@{/admin/manufacturers/new}" class="btn btn-primary">Dodaj producenta</a>
             </div>
 
             <table th:if="${not #lists.isEmpty(manufacturers)}">
@@ -154,7 +154,7 @@
                         <td>
                             <form th:action="@{/admin/manufacturers/delete/{id}(id=${manufacturer.id})}" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-danger" 
-                                        onclick="return confirm('Czy na pewno chcesz usunąć tego producenta?')">🗑 Usuń</button>
+                                        onclick="return confirm('Czy na pewno chcesz usunąć tego producenta?')">Usuń</button>
                             </form>
                         </td>
                     </tr>
@@ -162,10 +162,9 @@
             </table>
 
             <div th:if="${#lists.isEmpty(manufacturers)}" class="empty-state">
-                <p style="font-size: 3rem; margin-bottom: 1rem;">🏭</p>
                 <h3>Brak producentów w bazie</h3>
                 <p style="margin: 1rem 0;">Dodaj pierwszego producenta, aby móc przypisywać go do CPU.</p>
-                <a th:href="@{/admin/manufacturers/new}" class="btn btn-primary">➕ Dodaj producenta</a>
+                <a th:href="@{/admin/manufacturers/new}" class="btn btn-primary">Dodaj producenta</a>
             </div>
         </div>
     </div>

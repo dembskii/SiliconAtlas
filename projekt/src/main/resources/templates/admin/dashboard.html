@@ -146,7 +146,7 @@
 </head>
 <body>
     <div class="navbar">
-        <h1>🖥️ CPU Database - Panel Administratora</h1>
+        <h1>CPU Database - Panel Administratora</h1>
         <nav>
             <a th:href="@{/admin}">Dashboard</a>
             <a th:href="@{/admin/cpus}">CPU</a>
@@ -178,7 +178,7 @@
 
         <!-- Statystyki producentów -->
         <div class="card">
-            <h2>📊 Statystyki producentów</h2>
+            <h2>Statystyki producentów</h2>
             <table th:if="${not #lists.isEmpty(manufacturerStats)}">
                 <thead>
                     <tr>
@@ -204,7 +204,7 @@
 
         <!-- Ostatnio dodane CPU -->
         <div class="card">
-            <h2>🕐 Ostatnio dodane CPU</h2>
+            <h2>Ostatnio dodane CPU</h2>
             <table th:if="${not #lists.isEmpty(recentCpus)}">
                 <thead>
                     <tr>
@@ -236,11 +236,11 @@
 
         <!-- Szybkie akcje -->
         <div class="card">
-            <h2>⚡ Szybkie akcje</h2>
+            <h2>Szybkie akcje</h2>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <a th:href="@{/admin/cpus/new}" class="btn btn-primary">➕ Dodaj CPU</a>
-                <a th:href="@{/admin/manufacturers/new}" class="btn btn-success">➕ Dodaj Producenta</a>
-                <a th:href="@{/admin/technologies/new}" class="btn btn-info">➕ Dodaj Technologię</a>
+                <a th:href="@{/admin/cpus/new}" class="btn btn-primary">Dodaj CPU</a>
+                <a th:href="@{/admin/manufacturers/new}" class="btn btn-success">Dodaj Producenta</a>
+                <a th:href="@{/admin/technologies/new}" class="btn btn-info">Dodaj Technologię</a>
             </div>
         </div>
     </div>
