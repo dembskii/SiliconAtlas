@@ -18,7 +18,6 @@ public class CpuBenchmark {
     private String testDate;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "cpu_id")
     private Cpu cpu;
 
     public CpuBenchmark() {
