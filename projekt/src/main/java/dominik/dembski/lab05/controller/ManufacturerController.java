@@ -2,6 +2,7 @@ package dominik.dembski.lab05.controller;
 
 import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.service.ManufacturerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/manufacturers")
+@RequiredArgsConstructor
 public class ManufacturerController {
 
     private final ManufacturerService manufacturerService;
-
-    public ManufacturerController(ManufacturerService manufacturerService) {
-        this.manufacturerService = manufacturerService;
-    }
 
     @PostMapping
     public ResponseEntity<Manufacturer> addManufacturer(@RequestBody Manufacturer manufacturer) {

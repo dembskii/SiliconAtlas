@@ -2,6 +2,7 @@ package dominik.dembski.lab05.controller;
 
 import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.service.TechnologyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/technologies")
+@RequiredArgsConstructor
 public class TechnologyController {
 
     private final TechnologyService technologyService;
-
-    public TechnologyController(TechnologyService technologyService) {
-        this.technologyService = technologyService;
-    }
 
     @PostMapping
     public ResponseEntity<Technology> addTechnology(@RequestBody Technology technology) {

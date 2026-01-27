@@ -9,6 +9,7 @@ import dominik.dembski.lab05.service.CpuService;
 import dominik.dembski.lab05.service.CpuSpecificationService;
 import dominik.dembski.lab05.service.ManufacturerService;
 import dominik.dembski.lab05.service.TechnologyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,22 +25,13 @@ import java.util.UUID;
  */
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
     private final CpuService cpuService;
     private final ManufacturerService manufacturerService;
     private final TechnologyService technologyService;
     private final CpuSpecificationService cpuSpecificationService;
-
-    public AdminController(CpuService cpuService, 
-                          ManufacturerService manufacturerService,
-                          TechnologyService technologyService,
-                          CpuSpecificationService cpuSpecificationService) {
-        this.cpuService = cpuService;
-        this.manufacturerService = manufacturerService;
-        this.technologyService = technologyService;
-        this.cpuSpecificationService = cpuSpecificationService;
-    }
 
     // =====================================================
     // DASHBOARD

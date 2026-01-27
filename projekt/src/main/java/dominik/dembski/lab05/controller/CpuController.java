@@ -7,6 +7,7 @@ import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
 import dominik.dembski.lab05.dto.PagedResponseDTO;
 import dominik.dembski.lab05.service.CpuService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cpus")
+@RequiredArgsConstructor
 public class CpuController {
 
     private final CpuService cpuService;
-
-    public CpuController(CpuService cpuService) {
-        this.cpuService = cpuService;
-    }
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD

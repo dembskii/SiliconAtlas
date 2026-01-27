@@ -3,6 +3,7 @@ package dominik.dembski.lab05.controller;
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.dto.BenchmarkStatsDTO;
 import dominik.dembski.lab05.service.CpuBenchmarkService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +15,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/benchmarks")
+@RequiredArgsConstructor
 public class CpuBenchmarkController {
 
     private final CpuBenchmarkService cpuBenchmarkService;
-
-    public CpuBenchmarkController(CpuBenchmarkService cpuBenchmarkService) {
-        this.cpuBenchmarkService = cpuBenchmarkService;
-    }
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD
