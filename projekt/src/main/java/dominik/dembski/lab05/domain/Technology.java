@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(exclude = "cpus")
 public class Technology {
 
     @Id
@@ -21,62 +22,13 @@ public class Technology {
     private String description;
     private int releaseYear;
 
-    // Relacja dwukierunkowa ManyToMany z Cpu
     @ManyToMany(mappedBy = "technologies")
     @JsonIgnore
     private List<Cpu> cpus;
-
-    public Technology() {
-    }
 
     public Technology(String name, String description, int releaseYear) {
         this.name = name;
         this.description = description;
         this.releaseYear = releaseYear;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getReleaseYear() {
-        return releaseYear;
-    }
-
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
-    }
-
-    public List<Cpu> getCpus() {
-        return cpus;
-    }
-
-    public void setCpus(List<Cpu> cpus) {
-        this.cpus = cpus;
-    }
-
-    @Override
-    public String toString() {
-        return "Technology{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", releaseYear=" + releaseYear +
-                '}';
     }
 } 
