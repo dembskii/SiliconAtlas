@@ -318,13 +318,17 @@ public class CpuService {
         );
 
         // Konwersja do DTO odpowiedzi
-        return new PagedResponseDTO<>(
-            cpuPage.getContent(),
-            cpuPage.getNumber(),
-            cpuPage.getSize(),
-            cpuPage.getTotalElements(),
-            cpuPage.getTotalPages()
-        );
+        PagedResponseDTO<Cpu> response = new PagedResponseDTO<>();
+        response.setContent(cpuPage.getContent());
+        response.setPageNumber(cpuPage.getNumber());
+        response.setPageSize(cpuPage.getSize());
+        response.setTotalElements(cpuPage.getTotalElements());
+        response.setTotalPages(cpuPage.getTotalPages());
+        response.setFirst(cpuPage.isFirst());
+        response.setLast(cpuPage.isLast());
+        response.setHasNext(cpuPage.hasNext());
+        response.setHasPrevious(cpuPage.hasPrevious());
+        return response;
     }
 
     /**
