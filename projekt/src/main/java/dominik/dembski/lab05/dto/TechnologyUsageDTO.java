@@ -1,7 +1,6 @@
 package dominik.dembski.lab05.dto;
 
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class TechnologyUsageDTO {
     
     private UUID technologyId;
@@ -19,4 +17,12 @@ public class TechnologyUsageDTO {
     private Long cpuCount;
     private Double avgCpuCores;
     private Double avgCpuFrequency;
+
+    // Constructor for JPQL queries (getTechnologyUsageStats)
+    public TechnologyUsageDTO(UUID technologyId, String technologyName, int releaseYear, Long cpuCount) {
+        this.technologyId = technologyId;
+        this.technologyName = technologyName;
+        this.releaseYear = releaseYear;
+        this.cpuCount = cpuCount;
+    }
 }

@@ -2,8 +2,8 @@ package dominik.dembski.lab05.repository;
 
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.dto.BenchmarkStatsDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CpuBenchmarkRepository extends CrudRepository<CpuBenchmark, UUID> {
+public interface CpuBenchmarkRepository extends JpaRepository<CpuBenchmark, UUID> {
     
     // =====================================================
     // METODY findBy (konwencja nazewnicza)

@@ -1,6 +1,5 @@
 package dominik.dembski.lab05.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class BenchmarkStatsDTO {
     
     private String cpuModel;
@@ -23,4 +21,17 @@ public class BenchmarkStatsDTO {
     private Integer maxMultiCore;
     private Integer minSingleCore;
     private Integer minMultiCore;
+
+    // Constructor for JPQL queries
+    public BenchmarkStatsDTO(String cpuModel, String manufacturerName, Long benchmarkCount,
+                             Double avgSingleCore, Double avgMultiCore, Double avgPassmark, Double avgCinebench) {
+        this.cpuModel = cpuModel;
+        this.manufacturerName = manufacturerName;
+        this.benchmarkCount = benchmarkCount;
+        this.avgSingleCore = avgSingleCore;
+        this.avgMultiCore = avgMultiCore;
+        this.avgPassmark = avgPassmark;
+        this.avgCinebench = avgCinebench;
+    }
 }
+

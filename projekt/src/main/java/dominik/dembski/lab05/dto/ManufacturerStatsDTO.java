@@ -1,6 +1,5 @@
 package dominik.dembski.lab05.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ManufacturerStatsDTO {
     
     private String manufacturerName;
@@ -17,4 +15,13 @@ public class ManufacturerStatsDTO {
     private Double avgCores;
     private Double avgFrequency;
     private Double avgBenchmarkScore;
+
+    // Constructor for JPQL queries
+    public ManufacturerStatsDTO(String manufacturerName, Long cpuCount, Double avgCores, Double avgFrequency, Double avgBenchmarkScore) {
+        this.manufacturerName = manufacturerName;
+        this.cpuCount = cpuCount;
+        this.avgCores = avgCores;
+        this.avgFrequency = avgFrequency;
+        this.avgBenchmarkScore = avgBenchmarkScore;
+    }
 }

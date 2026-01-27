@@ -2,6 +2,7 @@ package dominik.dembski.lab05.service;
 
 import dominik.dembski.lab05.domain.CpuSpecification;
 import dominik.dembski.lab05.repository.CpuSpecificationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CpuSpecificationService {
 
     private final CpuSpecificationRepository cpuSpecificationRepository;
-
-    public CpuSpecificationService(CpuSpecificationRepository cpuSpecificationRepository) {
-        this.cpuSpecificationRepository = cpuSpecificationRepository;
-    }
 
     public CpuSpecification addSpecification(CpuSpecification specification) {
         return cpuSpecificationRepository.save(specification);
