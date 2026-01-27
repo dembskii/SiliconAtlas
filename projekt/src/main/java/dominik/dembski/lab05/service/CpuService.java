@@ -14,6 +14,7 @@ import dominik.dembski.lab05.repository.CpuRepository;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
 import dominik.dembski.lab05.repository.TechnologyRepository;
 import dominik.dembski.lab05.specification.CpuSpecification;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,22 +31,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CpuService {
 
     private final CpuRepository cpuRepository;
     private final CpuBenchmarkRepository benchmarkRepository;
     private final ManufacturerRepository manufacturerRepository;
     private final TechnologyRepository technologyRepository;
-
-    public CpuService(CpuRepository cpuRepository,
-                      CpuBenchmarkRepository benchmarkRepository,
-                      ManufacturerRepository manufacturerRepository,
-                      TechnologyRepository technologyRepository) {
-        this.cpuRepository = cpuRepository;
-        this.benchmarkRepository = benchmarkRepository;
-        this.manufacturerRepository = manufacturerRepository;
-        this.technologyRepository = technologyRepository;
-    }
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD

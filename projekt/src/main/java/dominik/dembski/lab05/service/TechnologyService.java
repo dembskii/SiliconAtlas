@@ -2,6 +2,7 @@ package dominik.dembski.lab05.service;
 
 import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.repository.TechnologyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TechnologyService {
 
     private final TechnologyRepository technologyRepository;
-
-    public TechnologyService(TechnologyRepository technologyRepository) {
-        this.technologyRepository = technologyRepository;
-    }
 
     public Technology addTechnology(Technology technology) {
         return technologyRepository.save(technology);
