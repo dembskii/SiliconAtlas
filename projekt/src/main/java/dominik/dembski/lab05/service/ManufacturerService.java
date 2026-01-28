@@ -1,6 +1,9 @@
 package dominik.dembski.lab05.service;
 
 import dominik.dembski.lab05.domain.Manufacturer;
+import dominik.dembski.lab05.dto.ManufacturerCreateDTO;
+import dominik.dembski.lab05.dto.ManufacturerDTO;
+import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,40 +20,66 @@ import java.util.UUID;
 public class ManufacturerService {
 
     private final ManufacturerRepository manufacturerRepository;
+    private final EntityMapper entityMapper;
 
-    public Manufacturer addManufacturer(Manufacturer manufacturer) {
-        return manufacturerRepository.save(manufacturer);
+    // =====================================================
+    // METODY DTO - dla REST API
+    // =====================================================
+
+    public ManufacturerDTO addManufacturer(ManufacturerCreateDTO manufacturerCreateDTO) {
+        Manufacturer manufacturer = entityMapper.toManufacturerEntity(manufacturerCreateDTO);
+        Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
+        return entityMapper.toManufacturerDTO(savedManufacturer);
     }
 
-    public Optional<Manufacturer> getManufacturerById(UUID id) {
-        return manufacturerRepository.findById(id);
+    public Optional<ManufacturerDTO> getManufacturerById(UUID id) {
+        return manufacturerRepository.findById(id).map(entityMapper::toManufacturerDTO);
     }
 
-    public List<Manufacturer> getAllManufacturers() {
-        List<Manufacturer> result = new ArrayList<>();
-        manufacturerRepository.findAll().forEach(result::add);
-        return result;
+    public List<ManufacturerDTO> getAllManufacturers() {
+        List<Manufacturer> manufacturers = new ArrayList<>();
+        manufacturerRepository.findAll().forEach(manufacturers::add);
+        return entityMapper.toManufacturerDTOList(manufacturers);
     }
 
     public void deleteManufacturerById(UUID id) {
         manufacturerRepository.deleteById(id);
     }
 
-    public Manufacturer updateManufacturer(UUID id, Manufacturer manufacturerDetails) {
-        Optional<Manufacturer> manufacturer = manufacturerRepository.findById(id);
-        if (manufacturer.isPresent()) {
-            Manufacturer existingManufacturer = manufacturer.get();
-            if (manufacturerDetails.getName() != null) {
-                existingManufacturer.setName(manufacturerDetails.getName());
+    public ManufacturerDTO updateManufacturer(UUID id, ManufacturerCreateDTO manufacturerCreateDTO) {
+        Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(id);
+        if (manufacturerOpt.isPresent()) {
+            Manufacturer existingManufacturer = manufacturerOpt.get();
+            if (manufacturerCreateDTO.getName() != null) {
+                existingManufacturer.setName(manufacturerCreateDTO.getName());
             }
-            if (manufacturerDetails.getCountry() != null) {
-                existingManufacturer.setCountry(manufacturerDetails.getCountry());
+            if (manufacturerCreateDTO.getCountry() != null) {
+                existingManufacturer.setCountry(manufacturerCreateDTO.getCountry());
             }
-            if (manufacturerDetails.getFoundedYear() > 0) {
-                existingManufacturer.setFoundedYear(manufacturerDetails.getFoundedYear());
+            if (manufacturerCreateDTO.getFoundedYear() > 0) {
+                existingManufacturer.setFoundedYear(manufacturerCreateDTO.getFoundedYear());
             }
-            return manufacturerRepository.save(existingManufacturer);
+            Manufacturer savedManufacturer = manufacturerRepository.save(existingManufacturer);
+            return entityMapper.toManufacturerDTO(savedManufacturer);
         }
         return null;
+    }
+
+    // =====================================================
+    // METODY WEWNĘTRZNE (encje) - dla AdminController/Thymeleaf
+    // =====================================================
+
+    public Manufacturer addManufacturerEntity(Manufacturer manufacturer) {
+        return manufacturerRepository.save(manufacturer);
+    }
+
+    public Optional<Manufacturer> getManufacturerEntityById(UUID id) {
+        return manufacturerRepository.findById(id);
+    }
+
+    public List<Manufacturer> getAllManufacturerEntities() {
+        List<Manufacturer> manufacturers = new ArrayList<>();
+        manufacturerRepository.findAll().forEach(manufacturers::add);
+        return manufacturers;
     }
 }

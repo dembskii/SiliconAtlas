@@ -42,9 +42,9 @@ public class AdminController {
      */
     @GetMapping
     public String dashboard(Model model) {
-        List<Cpu> cpus = cpuService.getAllCpus();
-        List<Manufacturer> manufacturers = manufacturerService.getAllManufacturers();
-        List<Technology> technologies = technologyService.getAllTechnologies();
+        List<Cpu> cpus = cpuService.getAllCpuEntities();
+        List<Manufacturer> manufacturers = manufacturerService.getAllManufacturerEntities();
+        List<Technology> technologies = technologyService.getAllTechnologyEntities();
         List<ManufacturerStatsDTO> stats = cpuService.getManufacturerPerformanceStats();
 
         model.addAttribute("cpuCount", cpus.size());
@@ -65,7 +65,7 @@ public class AdminController {
      */
     @GetMapping("/cpus")
     public String listCpus(Model model) {
-        List<Cpu> cpus = cpuService.getAllCpus();
+        List<Cpu> cpus = cpuService.getAllCpuEntities();
         model.addAttribute("cpus", cpus);
         return "admin/cpu-list";
     }
@@ -76,8 +76,8 @@ public class AdminController {
     @GetMapping("/cpus/new")
     public String showCreateForm(Model model) {
         model.addAttribute("cpu", new Cpu());
-        model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
-        model.addAttribute("technologies", technologyService.getAllTechnologies());
+        model.addAttribute("manufacturers", manufacturerService.getAllManufacturerEntities());
+        model.addAttribute("technologies", technologyService.getAllTechnologyEntities());
         model.addAttribute("isEdit", false);
         return "admin/cpu-form";
     }
@@ -105,14 +105,14 @@ public class AdminController {
                     tdpWatts != null ? tdpWatts : 0,
                     socketType
                 );
-                CpuSpecification savedSpec = cpuSpecificationService.addSpecification(specification);
+                CpuSpecification savedSpec = cpuSpecificationService.addSpecificationEntity(specification);
                 cpu.setSpecification(savedSpec);
             }
 
             if (manufacturerId != null) {
-                cpuService.createCpuWithManufacturerAndTechnologies(cpu, manufacturerId, technologyIds);
+                cpuService.createCpuWithManufacturerAndTechnologiesEntity(cpu, manufacturerId, technologyIds);
             } else {
-                cpuService.addCpu(cpu);
+                cpuService.addCpuEntity(cpu);
             }
             redirectAttributes.addFlashAttribute("successMessage", "CPU zostało pomyślnie dodane!");
         } catch (Exception e) {
@@ -126,15 +126,15 @@ public class AdminController {
      */
     @GetMapping("/cpus/edit/{id}")
     public String showEditForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Cpu> cpuOpt = cpuService.getCpuById(id);
+        Optional<Cpu> cpuOpt = cpuService.getCpuEntityById(id);
         if (cpuOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "CPU o podanym ID nie istnieje!");
             return "redirect:/admin/cpus";
         }
 
         model.addAttribute("cpu", cpuOpt.get());
-        model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
-        model.addAttribute("technologies", technologyService.getAllTechnologies());
+        model.addAttribute("manufacturers", manufacturerService.getAllManufacturerEntities());
+        model.addAttribute("technologies", technologyService.getAllTechnologyEntities());
         model.addAttribute("isEdit", true);
         return "admin/cpu-form";
     }
@@ -154,7 +154,7 @@ public class AdminController {
                            @RequestParam(required = false) String socketType,
                            RedirectAttributes redirectAttributes) {
         try {
-            Cpu updated = cpuService.updateCpu(id, cpu);
+            Cpu updated = cpuService.updateCpuEntity(id, cpu);
             if (updated != null) {
                 // Aktualizuj specyfikację
                 if (cacheL1KB != null || cacheL2KB != null || cacheL3MB != null || tdpWatts != null || socketType != null) {
@@ -175,9 +175,9 @@ public class AdminController {
                             socketType
                         );
                     }
-                    CpuSpecification savedSpec = cpuSpecificationService.addSpecification(specification);
+                    CpuSpecification savedSpec = cpuSpecificationService.addSpecificationEntity(specification);
                     updated.setSpecification(savedSpec);
-                    cpuService.addCpu(updated);
+                    cpuService.addCpuEntity(updated);
                 }
 
                 // Aktualizuj producenta jeśli został wybrany
@@ -217,7 +217,7 @@ public class AdminController {
      */
     @GetMapping("/cpus/{id}")
     public String showCpuDetails(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
-        Optional<Cpu> cpuOpt = cpuService.getCpuById(id);
+        Optional<Cpu> cpuOpt = cpuService.getCpuEntityById(id);
         if (cpuOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "CPU o podanym ID nie istnieje!");
             return "redirect:/admin/cpus";
@@ -233,7 +233,7 @@ public class AdminController {
 
     @GetMapping("/manufacturers")
     public String listManufacturers(Model model) {
-        model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
+        model.addAttribute("manufacturers", manufacturerService.getAllManufacturerEntities());
         return "admin/manufacturer-list";
     }
 
@@ -248,7 +248,7 @@ public class AdminController {
     public String createManufacturer(@ModelAttribute Manufacturer manufacturer,
                                     RedirectAttributes redirectAttributes) {
         try {
-            manufacturerService.addManufacturer(manufacturer);
+            manufacturerService.addManufacturerEntity(manufacturer);
             redirectAttributes.addFlashAttribute("successMessage", "Producent został pomyślnie dodany!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Błąd: " + e.getMessage());
@@ -273,7 +273,7 @@ public class AdminController {
 
     @GetMapping("/technologies")
     public String listTechnologies(Model model) {
-        model.addAttribute("technologies", technologyService.getAllTechnologies());
+        model.addAttribute("technologies", technologyService.getAllTechnologyEntities());
         return "admin/technology-list";
     }
 
@@ -288,7 +288,7 @@ public class AdminController {
     public String createTechnology(@ModelAttribute Technology technology,
                                   RedirectAttributes redirectAttributes) {
         try {
-            technologyService.addTechnology(technology);
+            technologyService.addTechnologyEntity(technology);
             redirectAttributes.addFlashAttribute("successMessage", "Technologia została pomyślnie dodana!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Błąd: " + e.getMessage());
