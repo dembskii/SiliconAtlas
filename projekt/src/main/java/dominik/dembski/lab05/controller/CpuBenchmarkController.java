@@ -2,6 +2,9 @@ package dominik.dembski.lab05.controller;
 
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.dto.BenchmarkStatsDTO;
+import dominik.dembski.lab05.dto.CpuBenchmarkCreateDTO;
+import dominik.dembski.lab05.dto.CpuBenchmarkDTO;
+import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.service.CpuBenchmarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -19,34 +21,37 @@ import java.util.UUID;
 public class CpuBenchmarkController {
 
     private final CpuBenchmarkService cpuBenchmarkService;
+    private final EntityMapper entityMapper;
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD
     // =====================================================
 
     @PostMapping
-    public ResponseEntity<CpuBenchmark> addBenchmark(@RequestBody CpuBenchmark benchmark) {
+    public ResponseEntity<CpuBenchmarkDTO> addBenchmark(@RequestBody CpuBenchmarkCreateDTO benchmarkCreateDTO) {
+        CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
         CpuBenchmark savedBenchmark = cpuBenchmarkService.addBenchmark(benchmark);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBenchmark);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entityMapper.toCpuBenchmarkDTO(savedBenchmark));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CpuBenchmark> getBenchmarkById(@PathVariable UUID id) {
-        Optional<CpuBenchmark> benchmark = cpuBenchmarkService.getBenchmarkById(id);
-        return benchmark.map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<CpuBenchmarkDTO> getBenchmarkById(@PathVariable UUID id) {
+        return cpuBenchmarkService.getBenchmarkById(id)
+                .map(benchmark -> ResponseEntity.ok(entityMapper.toCpuBenchmarkDTO(benchmark)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<List<CpuBenchmark>> getAllBenchmarks() {
-        return ResponseEntity.ok(cpuBenchmarkService.getAllBenchmarks());
+    public ResponseEntity<List<CpuBenchmarkDTO>> getAllBenchmarks() {
+        return ResponseEntity.ok(entityMapper.toCpuBenchmarkDTOList(cpuBenchmarkService.getAllBenchmarks()));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CpuBenchmark> updateBenchmark(@PathVariable UUID id, @RequestBody CpuBenchmark benchmarkDetails) {
+    public ResponseEntity<CpuBenchmarkDTO> updateBenchmark(@PathVariable UUID id, @RequestBody CpuBenchmarkCreateDTO benchmarkCreateDTO) {
+        CpuBenchmark benchmarkDetails = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
         CpuBenchmark updatedBenchmark = cpuBenchmarkService.updateBenchmark(id, benchmarkDetails);
         if (updatedBenchmark != null) {
-            return ResponseEntity.ok(updatedBenchmark);
+            return ResponseEntity.ok(entityMapper.toCpuBenchmarkDTO(updatedBenchmark));
         }
         return ResponseEntity.notFound().build();
     }
@@ -68,10 +73,11 @@ public class CpuBenchmarkController {
     @PostMapping("/cpu/{cpuId}")
     public ResponseEntity<?> addBenchmarkToCpu(
             @PathVariable UUID cpuId,
-            @RequestBody CpuBenchmark benchmark) {
+            @RequestBody CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         try {
+            CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
             CpuBenchmark saved = cpuBenchmarkService.addBenchmarkToCpu(cpuId, benchmark);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            return ResponseEntity.status(HttpStatus.CREATED).body(entityMapper.toCpuBenchmarkDTO(saved));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
