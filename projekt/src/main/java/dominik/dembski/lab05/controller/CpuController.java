@@ -2,10 +2,13 @@ package dominik.dembski.lab05.controller;
 
 import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.dto.CpuComparisonDTO;
+import dominik.dembski.lab05.dto.CpuCreateDTO;
+import dominik.dembski.lab05.dto.CpuDTO;
 import dominik.dembski.lab05.dto.CpuPerformanceDTO;
 import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
 import dominik.dembski.lab05.dto.PagedResponseDTO;
+import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.service.CpuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -23,34 +25,37 @@ import java.util.UUID;
 public class CpuController {
 
     private final CpuService cpuService;
+    private final EntityMapper entityMapper;
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD
     // =====================================================
 
     @PostMapping
-    public ResponseEntity<Cpu> addCpu(@RequestBody Cpu cpu) {
+    public ResponseEntity<CpuDTO> addCpu(@RequestBody CpuCreateDTO cpuCreateDTO) {
+        Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
         Cpu savedCpu = cpuService.addCpu(cpu);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCpu);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entityMapper.toCpuDTO(savedCpu));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cpu> getCpuById(@PathVariable UUID id) {
-        Optional<Cpu> cpu = cpuService.getCpuById(id);
-        return cpu.map(ResponseEntity::ok)
-                  .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<CpuDTO> getCpuById(@PathVariable UUID id) {
+        return cpuService.getCpuById(id)
+                .map(cpu -> ResponseEntity.ok(entityMapper.toCpuDTO(cpu)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<List<Cpu>> getAllCpus() {
-        return ResponseEntity.ok(cpuService.getAllCpus());
+    public ResponseEntity<List<CpuDTO>> getAllCpus() {
+        return ResponseEntity.ok(entityMapper.toCpuDTOList(cpuService.getAllCpus()));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cpu> updateCpu(@PathVariable UUID id, @RequestBody Cpu cpuDetails) {
+    public ResponseEntity<CpuDTO> updateCpu(@PathVariable UUID id, @RequestBody CpuCreateDTO cpuCreateDTO) {
+        Cpu cpuDetails = entityMapper.toCpuEntity(cpuCreateDTO);
         Cpu updatedCpu = cpuService.updateCpu(id, cpuDetails);
         if (updatedCpu != null) {
-            return ResponseEntity.ok(updatedCpu);
+            return ResponseEntity.ok(entityMapper.toCpuDTO(updatedCpu));
         }
         return ResponseEntity.notFound().build();
     }
@@ -71,12 +76,12 @@ public class CpuController {
      */
     @PostMapping("/with-relations")
     public ResponseEntity<?> createCpuWithRelations(
-            @RequestBody Cpu cpu,
-            @RequestParam UUID manufacturerId,
-            @RequestParam(required = false) List<UUID> technologyIds) {
+            @RequestBody CpuCreateDTO cpuCreateDTO) {
         try {
-            Cpu createdCpu = cpuService.createCpuWithManufacturerAndTechnologies(cpu, manufacturerId, technologyIds);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCpu);
+            Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
+            Cpu createdCpu = cpuService.createCpuWithManufacturerAndTechnologies(
+                    cpu, cpuCreateDTO.getManufacturerId(), cpuCreateDTO.getTechnologyIds());
+            return ResponseEntity.status(HttpStatus.CREATED).body(entityMapper.toCpuDTO(createdCpu));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -147,7 +152,7 @@ public class CpuController {
      * Wszystkie parametry są opcjonalne.
      */
     @GetMapping("/search")
-    public ResponseEntity<PagedResponseDTO<Cpu>> searchCpus(
+    public ResponseEntity<PagedResponseDTO<CpuDTO>> searchCpus(
             @RequestParam(required = false) String model,
             @RequestParam(required = false) String manufacturer,
             @RequestParam(required = false) Integer minCores,
@@ -175,7 +180,8 @@ public class CpuController {
         criteria.setTechnology(technology);
         
         PagedResponseDTO<Cpu> result = cpuService.searchCpus(criteria, page, size, sortBy, sortDir);
-        return ResponseEntity.ok(result);
+        PagedResponseDTO<CpuDTO> dtoResult = entityMapper.toPagedResponseDTO(result, entityMapper.toCpuDTOList(result.getContent()));
+        return ResponseEntity.ok(dtoResult);
     }
 
     /**
@@ -183,13 +189,14 @@ public class CpuController {
      * GET /api/cpus/paged?page=0&size=10&sortBy=model&sortDir=asc
      */
     @GetMapping("/paged")
-    public ResponseEntity<PagedResponseDTO<Cpu>> getAllCpusPaged(
+    public ResponseEntity<PagedResponseDTO<CpuDTO>> getAllCpusPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "model") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         
         PagedResponseDTO<Cpu> result = cpuService.getAllCpusPaged(page, size, sortBy, sortDir);
-        return ResponseEntity.ok(result);
+        PagedResponseDTO<CpuDTO> dtoResult = entityMapper.toPagedResponseDTO(result, entityMapper.toCpuDTOList(result.getContent()));
+        return ResponseEntity.ok(dtoResult);
     }
 }
