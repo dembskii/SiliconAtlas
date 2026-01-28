@@ -1,9 +1,7 @@
 package dominik.dembski.lab05.controller;
 
-import dominik.dembski.lab05.domain.CpuSpecification;
 import dominik.dembski.lab05.dto.CpuSpecificationCreateDTO;
 import dominik.dembski.lab05.dto.CpuSpecificationDTO;
-import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.service.CpuSpecificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,25 +17,23 @@ import java.util.UUID;
 public class CpuSpecificationController {
 
     private final CpuSpecificationService cpuSpecificationService;
-    private final EntityMapper entityMapper;
 
     @PostMapping
     public ResponseEntity<CpuSpecificationDTO> addSpecification(@RequestBody CpuSpecificationCreateDTO specificationCreateDTO) {
-        CpuSpecification specification = entityMapper.toCpuSpecificationEntity(specificationCreateDTO);
-        CpuSpecification savedSpecification = cpuSpecificationService.addSpecification(specification);
-        return ResponseEntity.status(HttpStatus.CREATED).body(entityMapper.toCpuSpecificationDTO(savedSpecification));
+        CpuSpecificationDTO savedSpecification = cpuSpecificationService.addSpecification(specificationCreateDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSpecification);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CpuSpecificationDTO> getSpecificationById(@PathVariable UUID id) {
         return cpuSpecificationService.getSpecificationById(id)
-                .map(specification -> ResponseEntity.ok(entityMapper.toCpuSpecificationDTO(specification)))
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
     public ResponseEntity<List<CpuSpecificationDTO>> getAllSpecifications() {
-        return ResponseEntity.ok(entityMapper.toCpuSpecificationDTOList(cpuSpecificationService.getAllSpecifications()));
+        return ResponseEntity.ok(cpuSpecificationService.getAllSpecifications());
     }
 
     @DeleteMapping("/{id}")

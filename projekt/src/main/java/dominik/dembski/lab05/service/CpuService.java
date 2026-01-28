@@ -5,10 +5,13 @@ import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.dto.CpuComparisonDTO;
+import dominik.dembski.lab05.dto.CpuCreateDTO;
+import dominik.dembski.lab05.dto.CpuDTO;
 import dominik.dembski.lab05.dto.CpuPerformanceDTO;
 import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
 import dominik.dembski.lab05.dto.PagedResponseDTO;
+import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.repository.CpuBenchmarkRepository;
 import dominik.dembski.lab05.repository.CpuRepository;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
@@ -38,33 +41,76 @@ public class CpuService {
     private final CpuBenchmarkRepository benchmarkRepository;
     private final ManufacturerRepository manufacturerRepository;
     private final TechnologyRepository technologyRepository;
+    private final EntityMapper entityMapper;
 
     // =====================================================
-    // PODSTAWOWE OPERACJE CRUD
+    // PODSTAWOWE OPERACJE CRUD (zwracają DTO) - dla REST API
     // =====================================================
 
-    public Cpu addCpu(Cpu cpu) {
-        return cpuRepository.save(cpu);
+    public CpuDTO addCpu(CpuCreateDTO cpuCreateDTO) {
+        Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
+        Cpu savedCpu = cpuRepository.save(cpu);
+        return entityMapper.toCpuDTO(savedCpu);
     }
 
-    public Optional<Cpu> getCpuById(UUID id) {
-        return cpuRepository.findById(id);
+    public Optional<CpuDTO> getCpuById(UUID id) {
+        return cpuRepository.findById(id).map(entityMapper::toCpuDTO);
     }
 
-    public List<Cpu> getAllCpus() {
-        List<Cpu> result = new ArrayList<>();
-        cpuRepository.findAll().forEach(result::add);
-        return result;
+    public List<CpuDTO> getAllCpus() {
+        List<Cpu> cpus = new ArrayList<>();
+        cpuRepository.findAll().forEach(cpus::add);
+        return entityMapper.toCpuDTOList(cpus);
     }
 
     public void deleteCpuById(UUID id) {
         cpuRepository.deleteById(id);
     }
 
-    public Cpu updateCpu(UUID id, Cpu cpuDetails) {
-        Optional<Cpu> cpu = cpuRepository.findById(id);
-        if (cpu.isPresent()) {
-            Cpu existingCpu = cpu.get();
+    public CpuDTO updateCpu(UUID id, CpuCreateDTO cpuCreateDTO) {
+        Optional<Cpu> cpuOpt = cpuRepository.findById(id);
+        if (cpuOpt.isPresent()) {
+            Cpu existingCpu = cpuOpt.get();
+            if (cpuCreateDTO.getModel() != null) {
+                existingCpu.setModel(cpuCreateDTO.getModel());
+            }
+            if (cpuCreateDTO.getCores() > 0) {
+                existingCpu.setCores(cpuCreateDTO.getCores());
+            }
+            if (cpuCreateDTO.getThreads() > 0) {
+                existingCpu.setThreads(cpuCreateDTO.getThreads());
+            }
+            if (cpuCreateDTO.getFrequencyGhz() > 0) {
+                existingCpu.setFrequencyGhz(cpuCreateDTO.getFrequencyGhz());
+            }
+            Cpu savedCpu = cpuRepository.save(existingCpu);
+            return entityMapper.toCpuDTO(savedCpu);
+        }
+        return null;
+    }
+
+    // =====================================================
+    // METODY WEWNĘTRZNE (zwracają encje) - dla AdminController/Thymeleaf
+    // =====================================================
+
+    public Cpu addCpuEntity(Cpu cpu) {
+        return cpuRepository.save(cpu);
+    }
+
+    public Optional<Cpu> getCpuEntityById(UUID id) {
+        return cpuRepository.findById(id);
+    }
+
+    public List<Cpu> getAllCpuEntities() {
+        List<Cpu> cpus = new ArrayList<>();
+        cpuRepository.findAll().forEach(cpus::add);
+        return cpus;
+    }
+
+    public Cpu updateCpuEntity(UUID id, Cpu cpuDetails) {
+        Optional<Cpu> cpuOpt = cpuRepository.findById(id);
+        if (cpuOpt.isPresent()) {
+            Cpu existingCpu = cpuOpt.get();
             if (cpuDetails.getModel() != null) {
                 existingCpu.setModel(cpuDetails.getModel());
             }
@@ -82,20 +128,14 @@ public class CpuService {
         return null;
     }
 
-    // =====================================================
-    // ROZBUDOWANA LOGIKA BIZNESOWA (2+ repozytoriów)
-    // =====================================================
-
-    /**
-     * Tworzy nowy CPU z przypisaniem do producenta i technologii.
-     * Wykorzystuje: CpuRepository, ManufacturerRepository, TechnologyRepository
-     */
-    public Cpu createCpuWithManufacturerAndTechnologies(Cpu cpu, UUID manufacturerId, List<UUID> technologyIds) {
-        Optional<Manufacturer> manufacturer = manufacturerRepository.findById(manufacturerId);
-        if (manufacturer.isEmpty()) {
-            throw new IllegalArgumentException("Manufacturer not found with id: " + manufacturerId);
+    public Cpu createCpuWithManufacturerAndTechnologiesEntity(Cpu cpu, UUID manufacturerId, List<UUID> technologyIds) {
+        if (manufacturerId != null) {
+            Optional<Manufacturer> manufacturer = manufacturerRepository.findById(manufacturerId);
+            if (manufacturer.isEmpty()) {
+                throw new IllegalArgumentException("Manufacturer not found with id: " + manufacturerId);
+            }
+            cpu.setManufacturer(manufacturer.get());
         }
-        cpu.setManufacturer(manufacturer.get());
 
         if (technologyIds != null && !technologyIds.isEmpty()) {
             List<Technology> technologies = new ArrayList<>();
@@ -106,6 +146,37 @@ public class CpuService {
         }
 
         return cpuRepository.save(cpu);
+    }
+
+    // =====================================================
+    // ROZBUDOWANA LOGIKA BIZNESOWA (2+ repozytoriów)
+    // =====================================================
+
+    /**
+     * Tworzy nowy CPU z przypisaniem do producenta i technologii.
+     * Wykorzystuje: CpuRepository, ManufacturerRepository, TechnologyRepository
+     */
+    public CpuDTO createCpuWithManufacturerAndTechnologies(CpuCreateDTO cpuCreateDTO) {
+        Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
+        
+        if (cpuCreateDTO.getManufacturerId() != null) {
+            Optional<Manufacturer> manufacturer = manufacturerRepository.findById(cpuCreateDTO.getManufacturerId());
+            if (manufacturer.isEmpty()) {
+                throw new IllegalArgumentException("Manufacturer not found with id: " + cpuCreateDTO.getManufacturerId());
+            }
+            cpu.setManufacturer(manufacturer.get());
+        }
+
+        if (cpuCreateDTO.getTechnologyIds() != null && !cpuCreateDTO.getTechnologyIds().isEmpty()) {
+            List<Technology> technologies = new ArrayList<>();
+            for (UUID techId : cpuCreateDTO.getTechnologyIds()) {
+                technologyRepository.findById(techId).ifPresent(technologies::add);
+            }
+            cpu.setTechnologies(technologies);
+        }
+
+        Cpu savedCpu = cpuRepository.save(cpu);
+        return entityMapper.toCpuDTO(savedCpu);
     }
 
     /**
@@ -284,9 +355,9 @@ public class CpuService {
      * @param size rozmiar strony
      * @param sortBy pole do sortowania (model, cores, threads, frequencyGhz)
      * @param sortDir kierunek sortowania (asc, desc)
-     * @return stronicowana odpowiedź z listą CPU
+     * @return stronicowana odpowiedź z listą CPU jako DTO
      */
-    public PagedResponseDTO<Cpu> searchCpus(CpuSearchCriteriaDTO criteria, 
+    public PagedResponseDTO<CpuDTO> searchCpus(CpuSearchCriteriaDTO criteria, 
                                              int page, int size, 
                                              String sortBy, String sortDir) {
         // Walidacja i domyślne wartości
@@ -310,8 +381,8 @@ public class CpuService {
         );
 
         // Konwersja do DTO odpowiedzi
-        PagedResponseDTO<Cpu> response = new PagedResponseDTO<>();
-        response.setContent(cpuPage.getContent());
+        PagedResponseDTO<CpuDTO> response = new PagedResponseDTO<>();
+        response.setContent(entityMapper.toCpuDTOList(cpuPage.getContent()));
         response.setPageNumber(cpuPage.getNumber());
         response.setPageSize(cpuPage.getSize());
         response.setTotalElements(cpuPage.getTotalElements());
@@ -356,7 +427,7 @@ public class CpuService {
     /**
      * Pobiera wszystkie CPU z paginacją (bez filtrowania).
      */
-    public PagedResponseDTO<Cpu> getAllCpusPaged(int page, int size, String sortBy, String sortDir) {
+    public PagedResponseDTO<CpuDTO> getAllCpusPaged(int page, int size, String sortBy, String sortDir) {
         return searchCpus(new CpuSearchCriteriaDTO(), page, size, sortBy, sortDir);
     }
 }

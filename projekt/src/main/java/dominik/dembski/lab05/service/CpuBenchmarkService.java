@@ -3,6 +3,9 @@ package dominik.dembski.lab05.service;
 import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.dto.BenchmarkStatsDTO;
+import dominik.dembski.lab05.dto.CpuBenchmarkCreateDTO;
+import dominik.dembski.lab05.dto.CpuBenchmarkDTO;
+import dominik.dembski.lab05.mapper.EntityMapper;
 import dominik.dembski.lab05.repository.CpuBenchmarkRepository;
 import dominik.dembski.lab05.repository.CpuRepository;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
@@ -27,13 +30,62 @@ public class CpuBenchmarkService {
     private final CpuBenchmarkRepository cpuBenchmarkRepository;
     private final CpuRepository cpuRepository;
     private final ManufacturerRepository manufacturerRepository;
+    private final EntityMapper entityMapper;
 
     // =====================================================
-    // PODSTAWOWE OPERACJE CRUD
+    // PODSTAWOWE OPERACJE CRUD (zwracają DTO)
     // =====================================================
 
-    public CpuBenchmark addBenchmark(CpuBenchmark benchmark) {
-        // Jeśli benchmark ma CPU, pobierz go z bazy aby mieć attached entity
+    public CpuBenchmarkDTO addBenchmark(CpuBenchmarkCreateDTO benchmarkCreateDTO) {
+        CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
+        CpuBenchmark savedBenchmark = cpuBenchmarkRepository.save(benchmark);
+        return entityMapper.toCpuBenchmarkDTO(savedBenchmark);
+    }
+
+    public Optional<CpuBenchmarkDTO> getBenchmarkById(UUID id) {
+        return cpuBenchmarkRepository.findById(id).map(entityMapper::toCpuBenchmarkDTO);
+    }
+
+    public List<CpuBenchmarkDTO> getAllBenchmarks() {
+        List<CpuBenchmark> benchmarks = new ArrayList<>();
+        cpuBenchmarkRepository.findAll().forEach(benchmarks::add);
+        return entityMapper.toCpuBenchmarkDTOList(benchmarks);
+    }
+
+    public void deleteBenchmarkById(UUID id) {
+        cpuBenchmarkRepository.deleteById(id);
+    }
+
+    public CpuBenchmarkDTO updateBenchmark(UUID id, CpuBenchmarkCreateDTO benchmarkCreateDTO) {
+        Optional<CpuBenchmark> benchmarkOpt = cpuBenchmarkRepository.findById(id);
+        if (benchmarkOpt.isPresent()) {
+            CpuBenchmark existingBenchmark = benchmarkOpt.get();
+            if (benchmarkCreateDTO.getSingleCoreScore() > 0) {
+                existingBenchmark.setSingleCoreScore(benchmarkCreateDTO.getSingleCoreScore());
+            }
+            if (benchmarkCreateDTO.getMultiCoreScore() > 0) {
+                existingBenchmark.setMultiCoreScore(benchmarkCreateDTO.getMultiCoreScore());
+            }
+            if (benchmarkCreateDTO.getPassmarkScore() > 0) {
+                existingBenchmark.setPassmarkScore(benchmarkCreateDTO.getPassmarkScore());
+            }
+            if (benchmarkCreateDTO.getCinebenchR23() > 0) {
+                existingBenchmark.setCinebenchR23(benchmarkCreateDTO.getCinebenchR23());
+            }
+            if (benchmarkCreateDTO.getTestDate() != null) {
+                existingBenchmark.setTestDate(benchmarkCreateDTO.getTestDate());
+            }
+            CpuBenchmark savedBenchmark = cpuBenchmarkRepository.save(existingBenchmark);
+            return entityMapper.toCpuBenchmarkDTO(savedBenchmark);
+        }
+        return null;
+    }
+
+    // =====================================================
+    // METODY WEWNĘTRZNE (encje) - dla AdminController/Thymeleaf
+    // =====================================================
+
+    public CpuBenchmark addBenchmarkEntity(CpuBenchmark benchmark) {
         if (benchmark.getCpu() != null && benchmark.getCpu().getId() != null) {
             Cpu attachedCpu = cpuRepository.findById(benchmark.getCpu().getId()).orElse(null);
             if (attachedCpu != null) {
@@ -43,42 +95,14 @@ public class CpuBenchmarkService {
         return cpuBenchmarkRepository.save(benchmark);
     }
 
-    public Optional<CpuBenchmark> getBenchmarkById(UUID id) {
+    public Optional<CpuBenchmark> getBenchmarkEntityById(UUID id) {
         return cpuBenchmarkRepository.findById(id);
     }
 
-    public List<CpuBenchmark> getAllBenchmarks() {
-        List<CpuBenchmark> result = new ArrayList<>();
-        cpuBenchmarkRepository.findAll().forEach(result::add);
-        return result;
-    }
-
-    public void deleteBenchmarkById(UUID id) {
-        cpuBenchmarkRepository.deleteById(id);
-    }
-
-    public CpuBenchmark updateBenchmark(UUID id, CpuBenchmark benchmarkDetails) {
-        Optional<CpuBenchmark> benchmark = cpuBenchmarkRepository.findById(id);
-        if (benchmark.isPresent()) {
-            CpuBenchmark existingBenchmark = benchmark.get();
-            if (benchmarkDetails.getSingleCoreScore() > 0) {
-                existingBenchmark.setSingleCoreScore(benchmarkDetails.getSingleCoreScore());
-            }
-            if (benchmarkDetails.getMultiCoreScore() > 0) {
-                existingBenchmark.setMultiCoreScore(benchmarkDetails.getMultiCoreScore());
-            }
-            if (benchmarkDetails.getPassmarkScore() > 0) {
-                existingBenchmark.setPassmarkScore(benchmarkDetails.getPassmarkScore());
-            }
-            if (benchmarkDetails.getCinebenchR23() > 0) {
-                existingBenchmark.setCinebenchR23(benchmarkDetails.getCinebenchR23());
-            }
-            if (benchmarkDetails.getTestDate() != null) {
-                existingBenchmark.setTestDate(benchmarkDetails.getTestDate());
-            }
-            return cpuBenchmarkRepository.save(existingBenchmark);
-        }
-        return null;
+    public List<CpuBenchmark> getAllBenchmarkEntities() {
+        List<CpuBenchmark> benchmarks = new ArrayList<>();
+        cpuBenchmarkRepository.findAll().forEach(benchmarks::add);
+        return benchmarks;
     }
 
     // =====================================================
@@ -89,14 +113,16 @@ public class CpuBenchmarkService {
      * Dodaje benchmark do konkretnego CPU.
      * Wykorzystuje: CpuBenchmarkRepository, CpuRepository
      */
-    public CpuBenchmark addBenchmarkToCpu(UUID cpuId, CpuBenchmark benchmark) {
+    public CpuBenchmarkDTO addBenchmarkToCpu(UUID cpuId, CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         Optional<Cpu> cpuOpt = cpuRepository.findById(cpuId);
         if (cpuOpt.isEmpty()) {
             throw new IllegalArgumentException("CPU not found with id: " + cpuId);
         }
         
+        CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
         benchmark.setCpu(cpuOpt.get());
-        return cpuBenchmarkRepository.save(benchmark);
+        CpuBenchmark savedBenchmark = cpuBenchmarkRepository.save(benchmark);
+        return entityMapper.toCpuBenchmarkDTO(savedBenchmark);
     }
 
     /**
