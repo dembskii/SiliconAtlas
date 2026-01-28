@@ -2,6 +2,7 @@ package dominik.dembski.lab05.service;
 
 import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ManufacturerService {
 
     private final ManufacturerRepository manufacturerRepository;
-
-    public ManufacturerService(ManufacturerRepository manufacturerRepository) {
-        this.manufacturerRepository = manufacturerRepository;
-    }
 
     public Manufacturer addManufacturer(Manufacturer manufacturer) {
         return manufacturerRepository.save(manufacturer);

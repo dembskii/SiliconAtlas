@@ -2,10 +2,9 @@ package dominik.dembski.lab05.repository;
 
 import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CpuRepository extends CrudRepository<Cpu, UUID>, 
-                                        PagingAndSortingRepository<Cpu, UUID>,
+public interface CpuRepository extends JpaRepository<Cpu, UUID>, 
                                         JpaSpecificationExecutor<Cpu> {
     
     // =====================================================
@@ -40,8 +38,9 @@ public interface CpuRepository extends CrudRepository<Cpu, UUID>,
     // =====================================================
     
     @Query("SELECT new dominik.dembski.lab05.dto.ManufacturerStatsDTO(" +
-           "m.name, COUNT(c), AVG(c.cores), AVG(c.frequencyGhz)) " +
+           "m.name, COUNT(c), AVG(c.cores), AVG(c.frequencyGhz), AVG(b.passmarkScore)) " +
            "FROM Cpu c JOIN c.manufacturer m " +
+           "LEFT JOIN c.benchmarks b " +
            "GROUP BY m.name " +
            "ORDER BY COUNT(c) DESC")
     List<ManufacturerStatsDTO> getManufacturerStatistics();

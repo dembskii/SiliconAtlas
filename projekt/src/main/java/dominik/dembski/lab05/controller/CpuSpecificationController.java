@@ -2,6 +2,7 @@ package dominik.dembski.lab05.controller;
 
 import dominik.dembski.lab05.domain.CpuSpecification;
 import dominik.dembski.lab05.service.CpuSpecificationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/specifications")
+@RequiredArgsConstructor
 public class CpuSpecificationController {
 
     private final CpuSpecificationService cpuSpecificationService;
-
-    public CpuSpecificationController(CpuSpecificationService cpuSpecificationService) {
-        this.cpuSpecificationService = cpuSpecificationService;
-    }
 
     @PostMapping
     public ResponseEntity<CpuSpecification> addSpecification(@RequestBody CpuSpecification specification) {
