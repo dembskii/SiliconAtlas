@@ -4,6 +4,8 @@ import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.domain.CpuBenchmark;
 import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.domain.Technology;
+import dominik.dembski.lab05.exception.CpuNotFoundException;
+import dominik.dembski.lab05.exception.DuplicateCpuModelException;
 import dominik.dembski.lab05.dto.CpuComparisonDTO;
 import dominik.dembski.lab05.dto.CpuCreateDTO;
 import dominik.dembski.lab05.dto.CpuDTO;
@@ -48,9 +50,22 @@ public class CpuService {
     // =====================================================
 
     public CpuDTO addCpu(CpuCreateDTO cpuCreateDTO) {
+        // Sprawdź czy model już istnieje
+        if (cpuRepository.findByModel(cpuCreateDTO.getModel()).isPresent()) {
+            throw new DuplicateCpuModelException(cpuCreateDTO.getModel());
+        }
         Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
         Cpu savedCpu = cpuRepository.save(cpu);
         return entityMapper.toCpuDTO(savedCpu);
+    }
+
+    /**
+     * Pobiera CPU lub rzuca wyjątek jeśli nie znaleziono.
+     */
+    public CpuDTO getCpuByIdOrThrow(UUID id) {
+        return cpuRepository.findById(id)
+                .map(entityMapper::toCpuDTO)
+                .orElseThrow(() -> new CpuNotFoundException(id));
     }
 
     public Optional<CpuDTO> getCpuById(UUID id) {
@@ -64,29 +79,36 @@ public class CpuService {
     }
 
     public void deleteCpuById(UUID id) {
+        if (!cpuRepository.existsById(id)) {
+            throw new CpuNotFoundException(id);
+        }
         cpuRepository.deleteById(id);
     }
 
     public CpuDTO updateCpu(UUID id, CpuCreateDTO cpuCreateDTO) {
-        Optional<Cpu> cpuOpt = cpuRepository.findById(id);
-        if (cpuOpt.isPresent()) {
-            Cpu existingCpu = cpuOpt.get();
-            if (cpuCreateDTO.getModel() != null) {
-                existingCpu.setModel(cpuCreateDTO.getModel());
-            }
-            if (cpuCreateDTO.getCores() > 0) {
-                existingCpu.setCores(cpuCreateDTO.getCores());
-            }
-            if (cpuCreateDTO.getThreads() > 0) {
-                existingCpu.setThreads(cpuCreateDTO.getThreads());
-            }
-            if (cpuCreateDTO.getFrequencyGhz() > 0) {
-                existingCpu.setFrequencyGhz(cpuCreateDTO.getFrequencyGhz());
-            }
-            Cpu savedCpu = cpuRepository.save(existingCpu);
-            return entityMapper.toCpuDTO(savedCpu);
+        Cpu existingCpu = cpuRepository.findById(id)
+                .orElseThrow(() -> new CpuNotFoundException(id));
+        
+        // Sprawdź czy nowy model nie koliduje z istniejącym
+        if (cpuCreateDTO.getModel() != null) {
+            cpuRepository.findByModel(cpuCreateDTO.getModel())
+                    .filter(existing -> !existing.getId().equals(id))
+                    .ifPresent(existing -> {
+                        throw new DuplicateCpuModelException(cpuCreateDTO.getModel());
+                    });
+            existingCpu.setModel(cpuCreateDTO.getModel());
         }
-        return null;
+        if (cpuCreateDTO.getCores() > 0) {
+            existingCpu.setCores(cpuCreateDTO.getCores());
+        }
+        if (cpuCreateDTO.getThreads() > 0) {
+            existingCpu.setThreads(cpuCreateDTO.getThreads());
+        }
+        if (cpuCreateDTO.getFrequencyGhz() > 0) {
+            existingCpu.setFrequencyGhz(cpuCreateDTO.getFrequencyGhz());
+        }
+        Cpu savedCpu = cpuRepository.save(existingCpu);
+        return entityMapper.toCpuDTO(savedCpu);
     }
 
     // =====================================================
