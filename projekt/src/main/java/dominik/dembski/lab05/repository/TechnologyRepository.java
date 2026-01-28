@@ -2,8 +2,8 @@ package dominik.dembski.lab05.repository;
 
 import dominik.dembski.lab05.domain.Technology;
 import dominik.dembski.lab05.dto.TechnologyUsageDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface TechnologyRepository extends CrudRepository<Technology, UUID> {
+public interface TechnologyRepository extends JpaRepository<Technology, UUID> {
     
     // =====================================================
     // METODY findBy (konwencja nazewnicza)

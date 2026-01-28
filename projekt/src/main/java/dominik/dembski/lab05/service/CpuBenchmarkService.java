@@ -6,6 +6,7 @@ import dominik.dembski.lab05.dto.BenchmarkStatsDTO;
 import dominik.dembski.lab05.repository.CpuBenchmarkRepository;
 import dominik.dembski.lab05.repository.CpuRepository;
 import dominik.dembski.lab05.repository.ManufacturerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,19 +21,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CpuBenchmarkService {
 
     private final CpuBenchmarkRepository cpuBenchmarkRepository;
     private final CpuRepository cpuRepository;
     private final ManufacturerRepository manufacturerRepository;
-
-    public CpuBenchmarkService(CpuBenchmarkRepository cpuBenchmarkRepository,
-                                CpuRepository cpuRepository,
-                                ManufacturerRepository manufacturerRepository) {
-        this.cpuBenchmarkRepository = cpuBenchmarkRepository;
-        this.cpuRepository = cpuRepository;
-        this.manufacturerRepository = manufacturerRepository;
-    }
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD

@@ -1,8 +1,8 @@
 package dominik.dembski.lab05.repository;
 
 import dominik.dembski.lab05.domain.Manufacturer;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ManufacturerRepository extends CrudRepository<Manufacturer, UUID> {
+public interface ManufacturerRepository extends JpaRepository<Manufacturer, UUID> {
     
     // =====================================================
     // METODY findBy (konwencja nazewnicza)
