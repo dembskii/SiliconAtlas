@@ -4,6 +4,7 @@ import dominik.dembski.lab05.domain.Cpu;
 import dominik.dembski.lab05.domain.CpuSpecification;
 import dominik.dembski.lab05.domain.Manufacturer;
 import dominik.dembski.lab05.domain.Technology;
+import dominik.dembski.lab05.dto.CpuSearchCriteriaDTO;
 import dominik.dembski.lab05.dto.ManufacturerStatsDTO;
 import dominik.dembski.lab05.service.CpuService;
 import dominik.dembski.lab05.service.CpuSpecificationService;
@@ -61,12 +62,32 @@ public class AdminController {
     // =====================================================
 
     /**
-     * Lista wszystkich CPU.
+     * Lista wszystkich CPU z możliwością filtrowania.
      */
     @GetMapping("/cpus")
-    public String listCpus(Model model) {
-        List<Cpu> cpus = cpuService.getAllCpuEntities();
-        model.addAttribute("cpus", cpus);
+    public String listCpus(
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) String manufacturer,
+            @RequestParam(required = false) Integer minCores,
+            @RequestParam(required = false) Integer maxCores,
+            @RequestParam(required = false) Integer minThreads,
+            @RequestParam(required = false) Integer maxThreads,
+            @RequestParam(required = false) Double minFrequency,
+            @RequestParam(required = false) Double maxFrequency,
+            @RequestParam(required = false) String technology,
+            Model viewModel) {
+        
+        CpuSearchCriteriaDTO criteria = new CpuSearchCriteriaDTO(
+            model, manufacturer, minCores, maxCores, minThreads, maxThreads,
+            minFrequency, maxFrequency, technology
+        );
+        
+        List<Cpu> cpus = cpuService.searchCpuEntities(criteria);
+        viewModel.addAttribute("cpus", cpus);
+        viewModel.addAttribute("criteria", criteria);
+        viewModel.addAttribute("manufacturers", manufacturerService.getAllManufacturerEntities());
+        viewModel.addAttribute("technologies", technologyService.getAllTechnologyEntities());
+        
         return "admin/cpu-list";
     }
 

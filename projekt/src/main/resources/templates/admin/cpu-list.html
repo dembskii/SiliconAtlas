@@ -145,6 +145,76 @@
             font-size: 12px;
             margin-right: 4px;
         }
+        .search-form {
+            background: #f5f5f5;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        .search-form h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            color: #555;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #003366;
+        }
+        .search-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .active-filters {
+            background: #e8f4fd;
+            border: 1px solid #b8daff;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+        }
+        .active-filters span {
+            display: inline-block;
+            background: #003366;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +232,98 @@
         <!-- Komunikaty -->
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <!-- Formularz wyszukiwania -->
+        <div class="search-form">
+            <h3>🔍 Wyszukiwanie i filtry</h3>
+            <form th:action="@{/admin/cpus}" method="get">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <input type="text" id="model" name="model" th:value="${criteria?.model}" 
+                               placeholder="np. Ryzen, Core i7">
+                    </div>
+                    <div class="form-group">
+                        <label for="manufacturer">Producent</label>
+                        <select id="manufacturer" name="manufacturer">
+                            <option value="">-- Wszyscy --</option>
+                            <option th:each="m : ${manufacturers}" 
+                                    th:value="${m.name}" 
+                                    th:text="${m.name}"
+                                    th:selected="${criteria?.manufacturer == m.name}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="technology">Technologia</label>
+                        <select id="technology" name="technology">
+                            <option value="">-- Wszystkie --</option>
+                            <option th:each="t : ${technologies}" 
+                                    th:value="${t.name}" 
+                                    th:text="${t.name}"
+                                    th:selected="${criteria?.technology == t.name}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="minCores">Min. rdzeni</label>
+                        <input type="number" id="minCores" name="minCores" th:value="${criteria?.minCores}" 
+                               min="1" placeholder="np. 4">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxCores">Max. rdzeni</label>
+                        <input type="number" id="maxCores" name="maxCores" th:value="${criteria?.maxCores}" 
+                               min="1" placeholder="np. 16">
+                    </div>
+                    <div class="form-group">
+                        <label for="minThreads">Min. wątków</label>
+                        <input type="number" id="minThreads" name="minThreads" th:value="${criteria?.minThreads}" 
+                               min="1" placeholder="np. 8">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxThreads">Max. wątków</label>
+                        <input type="number" id="maxThreads" name="maxThreads" th:value="${criteria?.maxThreads}" 
+                               min="1" placeholder="np. 32">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="minFrequency">Min. częstotliwość (GHz)</label>
+                        <input type="number" id="minFrequency" name="minFrequency" th:value="${criteria?.minFrequency}" 
+                               min="0" step="0.1" placeholder="np. 3.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxFrequency">Max. częstotliwość (GHz)</label>
+                        <input type="number" id="maxFrequency" name="maxFrequency" th:value="${criteria?.maxFrequency}" 
+                               min="0" step="0.1" placeholder="np. 5.0">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <!-- Spacer -->
+                    </div>
+                </div>
+                <div class="search-buttons">
+                    <button type="submit" class="btn btn-primary">Szukaj</button>
+                    <a th:href="@{/admin/cpus}" class="btn btn-secondary">Wyczyść filtry</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Aktywne filtry -->
+        <div class="active-filters" th:if="${criteria != null and (criteria.model != null or criteria.manufacturer != null or criteria.technology != null or criteria.minCores != null or criteria.maxCores != null or criteria.minThreads != null or criteria.maxThreads != null or criteria.minFrequency != null or criteria.maxFrequency != null)}">
+            <strong>Aktywne filtry:</strong>
+            <span th:if="${criteria.model != null}">Model: [[${criteria.model}]]</span>
+            <span th:if="${criteria.manufacturer != null}">Producent: [[${criteria.manufacturer}]]</span>
+            <span th:if="${criteria.technology != null}">Technologia: [[${criteria.technology}]]</span>
+            <span th:if="${criteria.minCores != null}">Min. rdzeni: [[${criteria.minCores}]]</span>
+            <span th:if="${criteria.maxCores != null}">Max. rdzeni: [[${criteria.maxCores}]]</span>
+            <span th:if="${criteria.minThreads != null}">Min. wątków: [[${criteria.minThreads}]]</span>
+            <span th:if="${criteria.maxThreads != null}">Max. wątków: [[${criteria.maxThreads}]]</span>
+            <span th:if="${criteria.minFrequency != null}">Min. GHz: [[${criteria.minFrequency}]]</span>
+            <span th:if="${criteria.maxFrequency != null}">Max. GHz: [[${criteria.maxFrequency}]]</span>
+            <span style="background: #666;">Znaleziono: [[${#lists.size(cpus)}]] wyników</span>
+        </div>
 
         <div class="card">
             <div class="card-header">
