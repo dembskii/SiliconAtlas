@@ -3,6 +3,7 @@ package dominik.dembski.lab05.domain;
 import java.util.List;
 import java.util.UUID;
 
+import dominik.dembski.lab05.annotation.PositiveValue;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,8 +19,14 @@ public class Cpu {
     private UUID id;
 
     private String model;
+    
+    @PositiveValue(message = "Number of cores must be positive")
     private int cores;
+    
+    @PositiveValue(message = "Number of threads must be positive")
     private int threads;
+    
+    @PositiveValue(message = "Frequency must be positive")
     private double frequencyGhz;
 
     @ManyToOne(fetch = FetchType.EAGER)
