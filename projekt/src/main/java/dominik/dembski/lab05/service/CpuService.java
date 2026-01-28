@@ -107,6 +107,13 @@ public class CpuService {
         return cpus;
     }
 
+    /**
+     * Wyszukuje CPU według kryteriów (wersja zwracająca encje).
+     */
+    public List<Cpu> searchCpuEntities(CpuSearchCriteriaDTO criteria) {
+        return cpuRepository.findAll(CpuSpecification.fromCriteria(criteria));
+    }
+
     public Cpu updateCpuEntity(UUID id, Cpu cpuDetails) {
         Optional<Cpu> cpuOpt = cpuRepository.findById(id);
         if (cpuOpt.isPresent()) {
