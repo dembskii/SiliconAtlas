@@ -33,6 +33,7 @@ services:
     container_name: cpu-management-redis
     ports:
       - "${REDIS_PORT}:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:
@@ -43,6 +44,10 @@ services:
     networks:
       - cpu-network
     restart: unless-stopped
+    environment:
+      - REDIS_LOG_LEVEL=notice
+    
+    
 
   # ============================================
   # Spring Boot Backend Application
