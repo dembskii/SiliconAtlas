@@ -8,10 +8,19 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Set encoding
 SET client_encoding TO 'UTF8';
 
+-- ============================================
+-- Users Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('ADMIN', 'USER')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Example: Create initial data (optional)
-INSERT INTO manufacturer (id, name, country, founding_year) VALUES 
-('550e8400-e29b-41d4-a716-446655440000', 'Intel', 'USA', 1968),
-('550e8400-e29b-41d4-a716-446655440001', 'AMD', 'USA', 1969);
-
-GRANT ALL PRIVILEGES ON DATABASE cpu_management_db TO cpu_admin;
+-- Create index on username for faster lookups
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
