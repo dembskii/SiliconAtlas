@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Build artifacts to exclude (but NOT build/libs/)
+.gradle/
+.idea/
+
+# IDE
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Tests
+src/test/
+
+# Documentation
+README.md
+HELP.md
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker & Environment
+docker-compose.yml
+.dockerignore
+.env
+.env.local
+.env.*.local
+
+# Other
+*.log
+*.swp
+*.swo
+*~
+

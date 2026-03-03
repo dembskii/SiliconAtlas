@@ -89,3 +89,8 @@ nb-configuration.xml
 ##############################
 *.log
 
+
+.env
+
+.env.local
+.env.*.local
