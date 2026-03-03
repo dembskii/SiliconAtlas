@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/manufacturers")
+@RequestMapping("/api/v1/manufacturers")
 @RequiredArgsConstructor
 public class ManufacturerController {
 

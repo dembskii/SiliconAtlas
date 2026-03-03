@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/technologies")
+@RequestMapping("/api/v1/technologies")
 @RequiredArgsConstructor
 public class TechnologyController {
 

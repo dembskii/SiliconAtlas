@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/benchmarks")
+@RequestMapping("/api/v1/benchmarks")
 @RequiredArgsConstructor
 public class CpuBenchmarkController {
 

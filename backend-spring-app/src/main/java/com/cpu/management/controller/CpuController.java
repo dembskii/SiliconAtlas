@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/cpus")
+@RequestMapping("/api/v1/cpus")
 @RequiredArgsConstructor
 public class CpuController {
 
