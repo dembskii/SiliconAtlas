@@ -6,6 +6,8 @@ import com.cpu.management.dto.TechnologyDTO;
 import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,26 +28,31 @@ public class TechnologyService {
     // METODY DTO - dla REST API
     // =====================================================
 
+    @CacheEvict(value = {"allTechnologies", "technologies"}, allEntries = true)
     public TechnologyDTO addTechnology(TechnologyCreateDTO technologyCreateDTO) {
         Technology technology = entityMapper.toTechnologyEntity(technologyCreateDTO);
         Technology savedTechnology = technologyRepository.save(technology);
         return entityMapper.toTechnologyDTO(savedTechnology);
     }
 
+    @Cacheable(value = "technologies", key = "#id")
     public Optional<TechnologyDTO> getTechnologyById(UUID id) {
         return technologyRepository.findById(id).map(entityMapper::toTechnologyDTO);
     }
 
+    @Cacheable(value = "allTechnologies")
     public List<TechnologyDTO> getAllTechnologies() {
         List<Technology> technologies = new ArrayList<>();
         technologyRepository.findAll().forEach(technologies::add);
         return entityMapper.toTechnologyDTOList(technologies);
     }
 
+    @CacheEvict(value = {"allTechnologies", "technologies"}, key = "#id")
     public void deleteTechnologyById(UUID id) {
         technologyRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {"allTechnologies", "technologies"}, allEntries = true)
     public TechnologyDTO updateTechnology(UUID id, TechnologyCreateDTO technologyCreateDTO) {
         Optional<Technology> technologyOpt = technologyRepository.findById(id);
         if (technologyOpt.isPresent()) {
