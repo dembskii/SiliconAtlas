@@ -6,6 +6,8 @@ import com.cpu.management.dto.ManufacturerDTO;
 import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,26 +28,31 @@ public class ManufacturerService {
     // METODY DTO - dla REST API
     // =====================================================
 
+    @CacheEvict(value = {"allManufacturers", "manufacturers"}, allEntries = true)
     public ManufacturerDTO addManufacturer(ManufacturerCreateDTO manufacturerCreateDTO) {
         Manufacturer manufacturer = entityMapper.toManufacturerEntity(manufacturerCreateDTO);
         Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
         return entityMapper.toManufacturerDTO(savedManufacturer);
     }
 
+    @Cacheable(value = "manufacturers", key = "#id")
     public Optional<ManufacturerDTO> getManufacturerById(UUID id) {
         return manufacturerRepository.findById(id).map(entityMapper::toManufacturerDTO);
     }
 
+    @Cacheable(value = "allManufacturers")
     public List<ManufacturerDTO> getAllManufacturers() {
         List<Manufacturer> manufacturers = new ArrayList<>();
         manufacturerRepository.findAll().forEach(manufacturers::add);
         return entityMapper.toManufacturerDTOList(manufacturers);
     }
 
+    @CacheEvict(value = {"allManufacturers", "manufacturers"}, key = "#id")
     public void deleteManufacturerById(UUID id) {
         manufacturerRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {"allManufacturers", "manufacturers"}, allEntries = true)
     public ManufacturerDTO updateManufacturer(UUID id, ManufacturerCreateDTO manufacturerCreateDTO) {
         Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(id);
         if (manufacturerOpt.isPresent()) {
