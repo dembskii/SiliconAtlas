@@ -20,6 +20,8 @@ import com.cpu.management.repository.ManufacturerRepository;
 import com.cpu.management.repository.TechnologyRepository;
 import com.cpu.management.specification.CpuSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +51,7 @@ public class CpuService {
     // PODSTAWOWE OPERACJE CRUD (zwracają DTO) - dla REST API
     // =====================================================
 
+    @CacheEvict(value = {"allCpus", "cpus"}, allEntries = true)
     public CpuDTO addCpu(CpuCreateDTO cpuCreateDTO) {
         // Sprawdź czy model już istnieje
         if (cpuRepository.findByModel(cpuCreateDTO.getModel()).isPresent()) {
@@ -62,22 +65,26 @@ public class CpuService {
     /**
      * Pobiera CPU lub rzuca wyjątek jeśli nie znaleziono.
      */
+    @Cacheable(value = "cpus", key = "#id")
     public CpuDTO getCpuByIdOrThrow(UUID id) {
         return cpuRepository.findById(id)
                 .map(entityMapper::toCpuDTO)
                 .orElseThrow(() -> new CpuNotFoundException(id));
     }
 
+    @Cacheable(value = "cpus", key = "#id")
     public Optional<CpuDTO> getCpuById(UUID id) {
         return cpuRepository.findById(id).map(entityMapper::toCpuDTO);
     }
 
+    @Cacheable(value = "allCpus")
     public List<CpuDTO> getAllCpus() {
         List<Cpu> cpus = new ArrayList<>();
         cpuRepository.findAll().forEach(cpus::add);
         return entityMapper.toCpuDTOList(cpus);
     }
 
+    @CacheEvict(value = {"allCpus", "cpus"}, key = "#id")
     public void deleteCpuById(UUID id) {
         if (!cpuRepository.existsById(id)) {
             throw new CpuNotFoundException(id);
@@ -85,6 +92,7 @@ public class CpuService {
         cpuRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {"allCpus", "cpus"}, allEntries = true)
     public CpuDTO updateCpu(UUID id, CpuCreateDTO cpuCreateDTO) {
         Cpu existingCpu = cpuRepository.findById(id)
                 .orElseThrow(() -> new CpuNotFoundException(id));
@@ -286,6 +294,7 @@ public class CpuService {
      * Pobiera statystyki producentów z agregacją danych.
      * Wykorzystuje: CpuRepository (JPQL GROUP BY)
      */
+    @Cacheable(value = "manufacturerStats")
     public List<ManufacturerStatsDTO> getManufacturerPerformanceStats() {
         return cpuRepository.getManufacturerStatistics();
     }
