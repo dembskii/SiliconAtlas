@@ -10,6 +10,8 @@ import com.cpu.management.repository.CpuBenchmarkRepository;
 import com.cpu.management.repository.CpuRepository;
 import com.cpu.management.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,26 +38,31 @@ public class CpuBenchmarkService {
     // PODSTAWOWE OPERACJE CRUD (zwracają DTO)
     // =====================================================
 
+    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, allEntries = true)
     public CpuBenchmarkDTO addBenchmark(CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
         CpuBenchmark savedBenchmark = cpuBenchmarkRepository.save(benchmark);
         return entityMapper.toCpuBenchmarkDTO(savedBenchmark);
     }
 
+    @Cacheable(value = "benchmarks", key = "#id")
     public Optional<CpuBenchmarkDTO> getBenchmarkById(UUID id) {
         return cpuBenchmarkRepository.findById(id).map(entityMapper::toCpuBenchmarkDTO);
     }
 
+    @Cacheable(value = "allBenchmarks")
     public List<CpuBenchmarkDTO> getAllBenchmarks() {
         List<CpuBenchmark> benchmarks = new ArrayList<>();
         cpuBenchmarkRepository.findAll().forEach(benchmarks::add);
         return entityMapper.toCpuBenchmarkDTOList(benchmarks);
     }
 
+    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, key = "#id")
     public void deleteBenchmarkById(UUID id) {
         cpuBenchmarkRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, allEntries = true)
     public CpuBenchmarkDTO updateBenchmark(UUID id, CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         Optional<CpuBenchmark> benchmarkOpt = cpuBenchmarkRepository.findById(id);
         if (benchmarkOpt.isPresent()) {
@@ -129,6 +136,7 @@ public class CpuBenchmarkService {
      * Pobiera statystyki benchmarków dla wszystkich CPU danego producenta.
      * Wykorzystuje: CpuBenchmarkRepository, ManufacturerRepository
      */
+    @Cacheable(value = "benchmarkStats", key = "#manufacturerName")
     public List<BenchmarkStatsDTO> getBenchmarkStatsByManufacturer(String manufacturerName) {
         if (manufacturerRepository.findByName(manufacturerName).isEmpty()) {
             return new ArrayList<>();
@@ -165,6 +173,7 @@ public class CpuBenchmarkService {
      * Tworzy ranking CPU na podstawie benchmarków.
      * Wykorzystuje: CpuBenchmarkRepository (JPQL GROUP BY)
      */
+    @Cacheable(value = "cpuRanking", key = "#sortBy + '-' + #limit")
     public List<Map<String, Object>> createCpuRanking(String sortBy, int limit) {
         List<BenchmarkStatsDTO> allStats = cpuBenchmarkRepository.getBenchmarkStatsByCpu();
         
@@ -219,6 +228,7 @@ public class CpuBenchmarkService {
     /**
      * Pobiera wszystkie statystyki benchmarków pogrupowane po CPU.
      */
+    @Cacheable(value = "benchmarkStatsByCpu")
     public List<BenchmarkStatsDTO> getAllBenchmarkStatsByCpu() {
         return cpuBenchmarkRepository.getBenchmarkStatsByCpu();
     }
