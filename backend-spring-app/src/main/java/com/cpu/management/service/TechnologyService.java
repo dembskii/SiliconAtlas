@@ -40,7 +40,7 @@ public class TechnologyService {
         return technologyRepository.findById(id).map(entityMapper::toTechnologyDTO);
     }
 
-    @Cacheable(value = "allTechnologies")
+    @Cacheable(value = "allTechnologies", key = "'allTechnologies'")
     public List<TechnologyDTO> getAllTechnologies() {
         List<Technology> technologies = new ArrayList<>();
         technologyRepository.findAll().forEach(technologies::add);

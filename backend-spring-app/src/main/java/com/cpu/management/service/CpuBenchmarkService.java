@@ -50,7 +50,7 @@ public class CpuBenchmarkService {
         return cpuBenchmarkRepository.findById(id).map(entityMapper::toCpuBenchmarkDTO);
     }
 
-    @Cacheable(value = "allBenchmarks")
+    @Cacheable(value = "allBenchmarks", key = "'allBenchmarks'")
     public List<CpuBenchmarkDTO> getAllBenchmarks() {
         List<CpuBenchmark> benchmarks = new ArrayList<>();
         cpuBenchmarkRepository.findAll().forEach(benchmarks::add);

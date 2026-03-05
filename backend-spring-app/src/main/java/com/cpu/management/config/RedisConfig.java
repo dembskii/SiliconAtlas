@@ -8,7 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -30,12 +30,12 @@ public class RedisConfig {
         template.setConnectionFactory(connectionFactory);
         
         StringRedisSerializer stringSerializer = new StringRedisSerializer();
-        GenericToStringSerializer<Object> genericSerializer = new GenericToStringSerializer<>(Object.class);
+        GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
         
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
-        template.setValueSerializer(genericSerializer);
-        template.setHashValueSerializer(genericSerializer);
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
         
         template.afterPropertiesSet();
         return template;
@@ -56,12 +56,15 @@ public class RedisConfig {
                 
                 RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                         .entryTtl(Duration.ofMinutes(10))
+                        .computePrefixWith(cacheName -> "cache:")
                         .serializeKeysWith(
                                 RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                         .serializeValuesWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(new GenericToStringSerializer<>(Object.class)));
+                                RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-                return RedisCacheManager.create(connectionFactory);
+                return RedisCacheManager.builder(connectionFactory)
+                        .cacheDefaults(config)
+                        .build();
             } catch (Exception e) {
                 retryCount++;
                 if (retryCount < maxRetries) {

@@ -40,7 +40,7 @@ public class ManufacturerService {
         return manufacturerRepository.findById(id).map(entityMapper::toManufacturerDTO);
     }
 
-    @Cacheable(value = "allManufacturers")
+    @Cacheable(value = "allManufacturers", key = "'allManufacturers'")
     public List<ManufacturerDTO> getAllManufacturers() {
         List<Manufacturer> manufacturers = new ArrayList<>();
         manufacturerRepository.findAll().forEach(manufacturers::add);

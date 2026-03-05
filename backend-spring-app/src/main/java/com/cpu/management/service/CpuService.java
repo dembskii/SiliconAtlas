@@ -77,7 +77,7 @@ public class CpuService {
         return cpuRepository.findById(id).map(entityMapper::toCpuDTO);
     }
 
-    @Cacheable(value = "allCpus")
+    @Cacheable(value = "allCpus", key = "'allCpus'")
     public List<CpuDTO> getAllCpus() {
         List<Cpu> cpus = new ArrayList<>();
         cpuRepository.findAll().forEach(cpus::add);

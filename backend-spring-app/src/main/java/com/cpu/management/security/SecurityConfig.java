@@ -37,6 +37,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // Auth endpoints - public
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        // Login and register pages - public
+                        .requestMatchers("/login", "/register").permitAll()
+                        // Static resources - public
+                        .requestMatchers("/static/**", "/js/**", "/css/**", "/images/**").permitAll()
                         // Health check - public
                         .requestMatchers("/health", "/actuator/**").permitAll()
                         // Admin panel - authenticated
