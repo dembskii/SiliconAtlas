@@ -3,14 +3,17 @@ package com.cpu.management.service;
 import com.cpu.management.domain.Technology;
 import com.cpu.management.dto.TechnologyCreateDTO;
 import com.cpu.management.dto.TechnologyDTO;
+import com.cpu.management.dto.event.TechnologyEventDTO;
 import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.TechnologyRepository;
+import com.cpu.management.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,7 @@ public class TechnologyService {
 
     private final TechnologyRepository technologyRepository;
     private final EntityMapper entityMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     // =====================================================
     // METODY DTO - dla REST API
@@ -32,7 +36,24 @@ public class TechnologyService {
     public TechnologyDTO addTechnology(TechnologyCreateDTO technologyCreateDTO) {
         Technology technology = entityMapper.toTechnologyEntity(technologyCreateDTO);
         Technology savedTechnology = technologyRepository.save(technology);
-        return entityMapper.toTechnologyDTO(savedTechnology);
+        TechnologyDTO result = entityMapper.toTechnologyDTO(savedTechnology);
+        
+        // Publikuj event do Kafki
+        TechnologyEventDTO event = TechnologyEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("CREATE")
+                .technologyId(savedTechnology.getId())
+                .technologyName(savedTechnology.getName())
+                .description(savedTechnology.getDescription())
+                .releaseYear(savedTechnology.getReleaseYear())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("Technology successfully created: " + savedTechnology.getName())
+                .build();
+        
+        kafkaProducerService.publishTechnologyEvent(event);
+        
+        return result;
     }
 
     @Cacheable(value = "technologies", key = "#id")
@@ -49,7 +70,26 @@ public class TechnologyService {
 
     @CacheEvict(value = {"allTechnologies", "technologies"}, key = "#id")
     public void deleteTechnologyById(UUID id) {
-        technologyRepository.deleteById(id);
+        Optional<Technology> technologyOpt = technologyRepository.findById(id);
+        if (technologyOpt.isPresent()) {
+            Technology technology = technologyOpt.get();
+            technologyRepository.deleteById(id);
+            
+            // Publikuj event do Kafki
+            TechnologyEventDTO event = TechnologyEventDTO.builder()
+                    .eventId(UUID.randomUUID())
+                    .eventType("DELETE")
+                    .technologyId(technology.getId())
+                    .technologyName(technology.getName())
+                    .description(technology.getDescription())
+                    .releaseYear(technology.getReleaseYear())
+                    .timestamp(LocalDateTime.now())
+                    .userId("system")
+                    .details("Technology successfully deleted: " + technology.getName())
+                    .build();
+            
+            kafkaProducerService.publishTechnologyEvent(event);
+        }
     }
 
     @CacheEvict(value = {"allTechnologies", "technologies"}, allEntries = true)
@@ -67,7 +107,24 @@ public class TechnologyService {
                 existingTechnology.setReleaseYear(technologyCreateDTO.getReleaseYear());
             }
             Technology savedTechnology = technologyRepository.save(existingTechnology);
-            return entityMapper.toTechnologyDTO(savedTechnology);
+            TechnologyDTO result = entityMapper.toTechnologyDTO(savedTechnology);
+            
+            // Publikuj event do Kafki
+            TechnologyEventDTO event = TechnologyEventDTO.builder()
+                    .eventId(UUID.randomUUID())
+                    .eventType("UPDATE")
+                    .technologyId(savedTechnology.getId())
+                    .technologyName(savedTechnology.getName())
+                    .description(savedTechnology.getDescription())
+                    .releaseYear(savedTechnology.getReleaseYear())
+                    .timestamp(LocalDateTime.now())
+                    .userId("system")
+                    .details("Technology successfully updated: " + savedTechnology.getName())
+                    .build();
+            
+            kafkaProducerService.publishTechnologyEvent(event);
+            
+            return result;
         }
         return null;
     }
@@ -90,3 +147,4 @@ public class TechnologyService {
         return technologies;
     }
 }
+ 

@@ -13,11 +13,13 @@ import com.cpu.management.dto.CpuPerformanceDTO;
 import com.cpu.management.dto.CpuSearchCriteriaDTO;
 import com.cpu.management.dto.ManufacturerStatsDTO;
 import com.cpu.management.dto.PagedResponseDTO;
+import com.cpu.management.dto.event.CpuEventDTO;
 import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.CpuBenchmarkRepository;
 import com.cpu.management.repository.CpuRepository;
 import com.cpu.management.repository.ManufacturerRepository;
 import com.cpu.management.repository.TechnologyRepository;
+import com.cpu.management.service.kafka.KafkaProducerService;
 import com.cpu.management.specification.CpuSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -34,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +49,7 @@ public class CpuService {
     private final ManufacturerRepository manufacturerRepository;
     private final TechnologyRepository technologyRepository;
     private final EntityMapper entityMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     // =====================================================
     // PODSTAWOWE OPERACJE CRUD (zwracają DTO) - dla REST API
@@ -59,7 +63,26 @@ public class CpuService {
         }
         Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
         Cpu savedCpu = cpuRepository.save(cpu);
-        return entityMapper.toCpuDTO(savedCpu);
+        CpuDTO result = entityMapper.toCpuDTO(savedCpu);
+        
+        // Publikuj event do Kafki
+        CpuEventDTO event = CpuEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("CREATE")
+                .cpuId(savedCpu.getId())
+                .cpuModel(savedCpu.getModel())
+                .manufacturer(savedCpu.getManufacturer() != null ? savedCpu.getManufacturer().getName() : "Unknown")
+                .cores(savedCpu.getCores())
+                .threads(savedCpu.getThreads())
+                .baseFrequency(savedCpu.getFrequencyGhz())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("CPU successfully created: " + savedCpu.getModel())
+                .build();
+        
+        kafkaProducerService.publishCpuEvent(event);
+        
+        return result;
     }
 
     /**
@@ -89,7 +112,28 @@ public class CpuService {
         if (!cpuRepository.existsById(id)) {
             throw new CpuNotFoundException(id);
         }
+        
+        // Pobierz CPU przed usunięciem, żeby wysłać event
+        Cpu cpu = cpuRepository.findById(id).orElseThrow(() -> new CpuNotFoundException(id));
+        
         cpuRepository.deleteById(id);
+        
+        // Publikuj event do Kafki
+        CpuEventDTO event = CpuEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("DELETE")
+                .cpuId(cpu.getId())
+                .cpuModel(cpu.getModel())
+                .manufacturer(cpu.getManufacturer() != null ? cpu.getManufacturer().getName() : "Unknown")
+                .cores(cpu.getCores())
+                .threads(cpu.getThreads())
+                .baseFrequency(cpu.getFrequencyGhz())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("CPU successfully deleted: " + cpu.getModel())
+                .build();
+        
+        kafkaProducerService.publishCpuEvent(event);
     }
 
     @CacheEvict(value = {"allCpus", "cpus"}, allEntries = true)
@@ -116,7 +160,26 @@ public class CpuService {
             existingCpu.setFrequencyGhz(cpuCreateDTO.getFrequencyGhz());
         }
         Cpu savedCpu = cpuRepository.save(existingCpu);
-        return entityMapper.toCpuDTO(savedCpu);
+        CpuDTO result = entityMapper.toCpuDTO(savedCpu);
+        
+        // Publikuj event do Kafki
+        CpuEventDTO event = CpuEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("UPDATE")
+                .cpuId(savedCpu.getId())
+                .cpuModel(savedCpu.getModel())
+                .manufacturer(savedCpu.getManufacturer() != null ? savedCpu.getManufacturer().getName() : "Unknown")
+                .cores(savedCpu.getCores())
+                .threads(savedCpu.getThreads())
+                .baseFrequency(savedCpu.getFrequencyGhz())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("CPU successfully updated: " + savedCpu.getModel())
+                .build();
+        
+        kafkaProducerService.publishCpuEvent(event);
+        
+        return result;
     }
 
     // =====================================================
