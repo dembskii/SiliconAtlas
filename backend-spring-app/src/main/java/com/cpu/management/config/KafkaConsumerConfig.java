@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
@@ -46,10 +46,11 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentMessageListenerContainer<String, CpuEventDTO> cpuKafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, CpuEventDTO> cpuKafkaListenerContainerFactory(
             ConsumerFactory<String, CpuEventDTO> cpuConsumerFactory) {
-        ConcurrentMessageListenerContainer<String, CpuEventDTO> factory =
-                new ConcurrentMessageListenerContainer<>(cpuConsumerFactory);
+        ConcurrentKafkaListenerContainerFactory<String, CpuEventDTO> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(cpuConsumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         return factory;
     }
@@ -72,10 +73,11 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentMessageListenerContainer<String, TechnologyEventDTO> technologyKafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, TechnologyEventDTO> technologyKafkaListenerContainerFactory(
             ConsumerFactory<String, TechnologyEventDTO> technologyConsumerFactory) {
-        ConcurrentMessageListenerContainer<String, TechnologyEventDTO> factory =
-                new ConcurrentMessageListenerContainer<>(technologyConsumerFactory);
+        ConcurrentKafkaListenerContainerFactory<String, TechnologyEventDTO> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(technologyConsumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         return factory;
     }
@@ -98,10 +100,11 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentMessageListenerContainer<String, ManufacturerEventDTO> manufacturerKafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, ManufacturerEventDTO> manufacturerKafkaListenerContainerFactory(
             ConsumerFactory<String, ManufacturerEventDTO> manufacturerConsumerFactory) {
-        ConcurrentMessageListenerContainer<String, ManufacturerEventDTO> factory =
-                new ConcurrentMessageListenerContainer<>(manufacturerConsumerFactory);
+        ConcurrentKafkaListenerContainerFactory<String, ManufacturerEventDTO> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(manufacturerConsumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         return factory;
     }

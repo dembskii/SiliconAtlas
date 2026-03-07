@@ -3,6 +3,7 @@ package com.cpu.management.service.kafka;
 import com.cpu.management.dto.event.CpuEventDTO;
 import com.cpu.management.dto.event.TechnologyEventDTO;
 import com.cpu.management.service.WebSocketService;
+import com.cpu.management.dto.event.ManufacturerEventDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,7 +19,7 @@ public class KafkaConsumerService {
     // =====================================================
     // CPU Events Consumer
     // =====================================================
-    @KafkaListener(topics = "cpu-events", groupId = "cpu-management-group")
+    @KafkaListener(topics = "cpu-events", groupId = "cpu-management-group", containerFactory = "cpuKafkaListenerContainerFactory")
     public void consumeCpuEvent(CpuEventDTO event) {
         log.info("Kafka received CPU event: {} - Type: {}", event.getCpuModel(), event.getEventType());
 
@@ -46,7 +47,7 @@ public class KafkaConsumerService {
     // =====================================================
     // Technology Events Consumer
     // =====================================================
-    @KafkaListener(topics = "technology-events", groupId = "cpu-management-group")
+    @KafkaListener(topics = "technology-events", groupId = "cpu-management-group", containerFactory = "technologyKafkaListenerContainerFactory")
     public void consumeTechnologyEvent(TechnologyEventDTO event) {
         log.info("Kafka received Technology event: {} - Type: {}", event.getTechnologyName(), event.getEventType());
 
@@ -74,7 +75,7 @@ public class KafkaConsumerService {
     // =====================================================
     // Manufacturer Events Consumer
     // =====================================================
-    @KafkaListener(topics = "manufacturer-events", groupId = "cpu-management-group")
+    @KafkaListener(topics = "manufacturer-events", groupId = "cpu-management-group", containerFactory = "manufacturerKafkaListenerContainerFactory")
     public void consumeManufacturerEvent(ManufacturerEventDTO event) {
         log.info("Kafka received Manufacturer event: {} - Type: {}", event.getManufacturerName(), event.getEventType());
 
