@@ -38,7 +38,7 @@ public class TechnologyService {
         Technology savedTechnology = technologyRepository.save(technology);
         TechnologyDTO result = entityMapper.toTechnologyDTO(savedTechnology);
         
-        // Publikuj event do Kafki
+        // Publish event to Kafka
         TechnologyEventDTO event = TechnologyEventDTO.builder()
                 .eventId(UUID.randomUUID())
                 .eventType("CREATE")
@@ -75,7 +75,7 @@ public class TechnologyService {
             Technology technology = technologyOpt.get();
             technologyRepository.deleteById(id);
             
-            // Publikuj event do Kafki
+            // Publish event to Kafka
             TechnologyEventDTO event = TechnologyEventDTO.builder()
                     .eventId(UUID.randomUUID())
                     .eventType("DELETE")
@@ -109,7 +109,7 @@ public class TechnologyService {
             Technology savedTechnology = technologyRepository.save(existingTechnology);
             TechnologyDTO result = entityMapper.toTechnologyDTO(savedTechnology);
             
-            // Publikuj event do Kafki
+            // Publish event to Kafka
             TechnologyEventDTO event = TechnologyEventDTO.builder()
                     .eventId(UUID.randomUUID())
                     .eventType("UPDATE")
@@ -134,7 +134,24 @@ public class TechnologyService {
     // =====================================================
 
     public Technology addTechnologyEntity(Technology technology) {
-        return technologyRepository.save(technology);
+        Technology savedTechnology = technologyRepository.save(technology);
+        
+        // Publish event to Kafka
+        TechnologyEventDTO event = TechnologyEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("CREATE")
+                .technologyId(savedTechnology.getId())
+                .technologyName(savedTechnology.getName())
+                .description(savedTechnology.getDescription())
+                .releaseYear(savedTechnology.getReleaseYear())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("Technology successfully created: " + savedTechnology.getName())
+                .build();
+        
+        kafkaProducerService.publishTechnologyEvent(event);
+        
+        return savedTechnology;
     }
 
     public Optional<Technology> getTechnologyEntityById(UUID id) {

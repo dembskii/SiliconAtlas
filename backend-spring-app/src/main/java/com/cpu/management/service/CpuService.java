@@ -162,7 +162,7 @@ public class CpuService {
         Cpu savedCpu = cpuRepository.save(existingCpu);
         CpuDTO result = entityMapper.toCpuDTO(savedCpu);
         
-        // Publikuj event do Kafki
+        // Publish event to Kafka
         CpuEventDTO event = CpuEventDTO.builder()
                 .eventId(UUID.randomUUID())
                 .eventType("UPDATE")
@@ -223,7 +223,26 @@ public class CpuService {
             if (cpuDetails.getFrequencyGhz() > 0) {
                 existingCpu.setFrequencyGhz(cpuDetails.getFrequencyGhz());
             }
-            return cpuRepository.save(existingCpu);
+            Cpu savedCpu = cpuRepository.save(existingCpu);
+            
+            // Publish event to Kafka
+            CpuEventDTO event = CpuEventDTO.builder()
+                    .eventId(UUID.randomUUID())
+                    .eventType("UPDATE")
+                    .cpuId(savedCpu.getId())
+                    .cpuModel(savedCpu.getModel())
+                    .manufacturer(savedCpu.getManufacturer() != null ? savedCpu.getManufacturer().getName() : "Unknown")
+                    .cores(savedCpu.getCores())
+                    .threads(savedCpu.getThreads())
+                    .baseFrequency(savedCpu.getFrequencyGhz())
+                    .timestamp(LocalDateTime.now())
+                    .userId("system")
+                    .details("CPU successfully updated: " + savedCpu.getModel())
+                    .build();
+            
+            kafkaProducerService.publishCpuEvent(event);
+            
+            return savedCpu;
         }
         return null;
     }
@@ -245,7 +264,26 @@ public class CpuService {
             cpu.setTechnologies(technologies);
         }
 
-        return cpuRepository.save(cpu);
+        Cpu savedCpu = cpuRepository.save(cpu);
+        
+        // Publish event to Kafka
+        CpuEventDTO event = CpuEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("CREATE")
+                .cpuId(savedCpu.getId())
+                .cpuModel(savedCpu.getModel())
+                .manufacturer(savedCpu.getManufacturer() != null ? savedCpu.getManufacturer().getName() : "Unknown")
+                .cores(savedCpu.getCores())
+                .threads(savedCpu.getThreads())
+                .baseFrequency(savedCpu.getFrequencyGhz())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("CPU successfully created: " + savedCpu.getModel())
+                .build();
+        
+        kafkaProducerService.publishCpuEvent(event);
+        
+        return savedCpu;
     }
 
     // =====================================================

@@ -38,7 +38,7 @@ public class ManufacturerService {
         Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
         ManufacturerDTO result = entityMapper.toManufacturerDTO(savedManufacturer);
         
-        // Publikuj event do Kafki
+        // Publish event to Kafka
         ManufacturerEventDTO event = ManufacturerEventDTO.builder()
                 .eventId(UUID.randomUUID())
                 .eventType("CREATE")
@@ -75,7 +75,7 @@ public class ManufacturerService {
             Manufacturer manufacturer = manufacturerOpt.get();
             manufacturerRepository.deleteById(id);
             
-            // Publikuj event do Kafki
+            // Publish event to Kafka
             ManufacturerEventDTO event = ManufacturerEventDTO.builder()
                     .eventId(UUID.randomUUID())
                     .eventType("DELETE")
@@ -134,7 +134,24 @@ public class ManufacturerService {
     // =====================================================
 
     public Manufacturer addManufacturerEntity(Manufacturer manufacturer) {
-        return manufacturerRepository.save(manufacturer);
+        Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
+        
+        // Publish event to Kafka
+        ManufacturerEventDTO event = ManufacturerEventDTO.builder()
+                .eventId(UUID.randomUUID())
+                .eventType("CREATE")
+                .manufacturerId(savedManufacturer.getId())
+                .manufacturerName(savedManufacturer.getName())
+                .country(savedManufacturer.getCountry())
+                .foundedYear(savedManufacturer.getFoundedYear())
+                .timestamp(LocalDateTime.now())
+                .userId("system")
+                .details("Manufacturer successfully created: " + savedManufacturer.getName())
+                .build();
+        
+        kafkaProducerService.publishManufacturerEvent(event);
+        
+        return savedManufacturer;
     }
 
     public Optional<Manufacturer> getManufacturerEntityById(UUID id) {
