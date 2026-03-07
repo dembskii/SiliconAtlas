@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Register enpoint for websocket connections
         registry.addEndpoint("/ws/events")
-                .setAllowedOrigins("*")  // Allow cors for all origins
+                .setAllowedOriginPatterns("*")  // Allow cors for all origins
                 .withSockJS();           // Fallback to SockJS if WebSocket is not available
     }
 }
