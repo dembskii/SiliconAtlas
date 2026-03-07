@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register").permitAll()
                         // Static resources - public
                         .requestMatchers("/static/**", "/js/**", "/css/**", "/images/**").permitAll()
+                        // WebSocket endpoints - public
+                        .requestMatchers("/ws/**").permitAll()
                         // Health check - public
                         .requestMatchers("/health", "/actuator/**").permitAll()
                         // Admin panel - authenticated
