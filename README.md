@@ -1,93 +1,372 @@
-# Dominik Dembski
+# CPU Management System
 
+Profesjonalny system zarządzania procesorami z REST API i zaawansowaną architekturą rozproszoną. Projekt demonstruje best practices w tworzeniu nowoczesnych aplikacji webowych na Spring Boot.
 
+---
 
-## Getting started
+## Spis treści
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- [Przegląd projektu](#przegląd-projektu)
+- [Architektura](#architektura)
+- [Technologie](#technologie)
+- [API Documentation](#api-documentation)
+- [Wymagania systemowe](#wymagania-systemowe)
+- [Instalacja i uruchomienie](#instalacja-i-uruchomienie)
+- [Testing](#testing)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+---
 
-## Add your files
+## Przegląd projektu
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+CPU Management System to kompleksowa aplikacja webowa do zarządzania procesorami i technologiami produkcyjnymi. Obsługuje:
+
+- **Zarządzanie katalogiem** procesorów z parametrami technicznymi
+- **Administracja producentami** i ich historią
+- **Zarządzanie technologiami** litografii (10nm, 7nm, 5nm, itp.)
+- **Benchmarking** wydajności CPU (Passmark, Cinebench, multi-core score)
+- **Uwierzytelnianie i autoryzacja** z JWT tokens
+- **Ograniczanie częstości zapytań** (100 req/min per user)
+- **Powiadomienia real-time** przez WebSocket
+- **Event streaming** na Apache Kafka
+- **Cache'owanie** z Redis dla optymalizacji
+
+---
+
+## Architektura
+
+System wykorzystuje architekturę trójwarstwową z podziałem na:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ug_jn/aplikacje-przemys-owe-2025/grupa-1/dominik-dembski.git
-git branch -M main
-git push -uf origin main
+┌─────────────────────────────────────────────────┐
+│              Frontend (HTML/CSS/JS)             │
+│         WebSocket & Fetch API Client            │
+├─────────────────────────────────────────────────┤
+│         Spring Boot REST API (Layer 4.0.0)      │
+│    Controllers → Services → Repositories        │
+├─────────────────────────────────────────────────┤
+│  PostgreSQL | Redis Cache | Apache Kafka       │
+│         Event-Driven Architecture               │
+└─────────────────────────────────────────────────┘
 ```
 
-## Integrate with your tools
+**Przepływ danych:**
+1. Frontend wysyła żądania HTTP do REST API
+2. API waliduje JWT token i stosuje rate limiting
+3. Serwisy przetwarzają logikę biznesową
+4. Zmiany są utrwalane w PostgreSQL
+5. Zdarzenia publikowane na Kafka
+6. WebSocket wysyła notyfikacje do klientów
+7. Redis cache przyspiesza odczyty
 
-- [ ] [Set up project integrations](https://gitlab.com/ug_jn/aplikacje-przemys-owe-2025/grupa-1/dominik-dembski/-/settings/integrations)
+---
 
-## Collaborate with your team
+## Technologie
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Backend
 
-## Test and Deploy
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Język** | Java | 21 LTS | Nowoczesna wersja z virtual threads |
+| **Framework** | Spring Boot | 4.0.0 | Application framework |
+| **Build** | Gradle | 8.0+ | Automatyzacja budowy |
 
-Use the built-in continuous integration in GitLab.
+### Baza danych i storage
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **RDBMS** | PostgreSQL | 16-alpine | Główna baza relacyjna |
+| **ORM** | Hibernate 7 | - | Object-Relational Mapping |
+| **Data Access** | Spring Data JPA | - | Abstrakcja dostępu do danych |
+| **Cache** | Redis | 7-alpine | In-memory session/cache store |
+| **Spring Cache** | - | - | Integracja caching'u |
 
-***
+### Bezpieczeństwo
 
-# Editing this README
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Security** | Spring Security | 7.0.0 | Framework zarządzania dostępem |
+| **Authentication** | JWT (JJWT) | 0.12.3 | Bezstanowe uwierzytelnianie |
+| **Hashing** | BCrypt | - | Bezpieczne hashing haseł |
+| **Token** | Bearer Token | - | Authorization header |
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Komunikacja i Event Streaming
 
-## Suggestions for a good README
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Message Broker** | Apache Kafka | 7.5.0 | Event streaming |
+| **Coordinator** | Zookeeper | 7.5.0 | Zarządzanie klastrem Kafka |
+| **Spring Kafka** | - | 3.1.x | Producenci i konsumenci |
+| **Real-time** | WebSocket | - | Dwukierunkowa komunikacja |
+| **Messaging** | Spring Messaging | 7.0.1 | STOMP protocol |
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Serialization i Validacja
 
-## Name
-Choose a self-explaining name for your project.
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **JSON** | Jackson | 2.16+ | Serializacja/deserializacja |
+| **Java Time** | Jackson Datatype JSR310 | - | Obsługa LocalDateTime |
+| **Lombok** | - | 1.18.30 | Redukcja boilerplate'u |
+| **Thymeleaf** | - | 3.1.x | Server-side template engine |
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Dodatkowe biblioteki
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Rate Limiting** | Bucket4j | 7.6.0 | Ograniczanie częstości API |
+| **Testing** | JUnit 5 | 5.9.x | Unit testing framework |
+| **Mocking** | Mockito | 5.1.x | Test doubles |
+| **Test DB** | H2 Database | 2.2.224 | In-memory DB do testów |
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Dokumentacja API
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **OpenAPI** | springdoc-openapi | 2.8.0 | Generowanie dokumentacji |
+| **Swagger UI** | - | - | Interaktywny interfejs API |
+| **ReDoc** | - | - | Alternatywny widok dokumentacji |
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Infrastruktura i Deployment
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Containerization** | Docker | 20.10+ | Pakowanie aplikacji |
+| **Orchestration** | Docker Compose | 2.0+ | Zarządzanie kontenerami |
+| **Monitoring** | Grafana | 10.x | Wizualizacja metryk |
+| **Networking** | Docker Bridge | - | Izolowana sieć |
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Frontend
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+| Komponent | Technologia | Wersja | Cel |
+|-----------|-------------|--------|-----|
+| **Markup** | HTML5 | - | Struktura aplikacji |
+| **Styling** | CSS3 | - | Responsywny design |
+| **Logic** | JavaScript ES6+ | - | Interaktywność |
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+**Cechy frontendu:**
+- Uwierzytelnianie JWT z local storage
+- WebSocket client dla powiadomień
+- Fetch API z automatycznym authorization headerem
+- Notyfikacje toast
+- Responsive design
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+---
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## API Documentation
 
-## License
-For open source projects, say how it is licensed.
+Projekt zawiera pełną dokumentację API wygenerowaną przez OpenAPI 3.0 (Swagger).
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Dostęp do dokumentacji
+
+Automatycznie generowana dokumentacja jest dostępna pod:
+
+- **Swagger UI (interaktywny)**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **OpenAPI JSON**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+- **ReDoc (alternatywny widok)**: [http://localhost:8080/v3/api-docs.yaml](http://localhost:8080/v3/api-docs.yaml)
+
+### Endpoints REST API
+
+**Zasoby:**
+- `GET /api/v1/cpus` - Lista wszystkich procesorów
+- `POST /api/v1/cpus` - Tworzenie nowego procesora
+- `GET /api/v1/cpus/{id}` - Pobierz procesor po ID
+- `PUT /api/v1/cpus/{id}` - Aktualizacja procesora
+- `DELETE /api/v1/cpus/{id}` - Usunięcie procesora
+
+**Zaawansowane:**
+- `POST /api/v1/cpus/search` - Wyszukiwanie z kryteriami
+- `GET /api/v1/cpus/benchmarks` - Porównanie wydajności
+- `GET /api/v1/manufacturers` - Producenci
+- `GET /api/v1/technologies` - Dostępne technologie
+
+### Uwierzytelnianie
+
+```bash
+# Rejestracja
+curl -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user","email":"user@example.com","password":"pass123"}'
+
+# Login
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user","password":"pass123"}'
+
+# Użycie tokenu
+curl -X GET http://localhost:8080/api/v1/cpus \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+## Wymagania systemowe
+
+### Do uruchomienia z Docker Compose
+
+- Docker 20.10+
+- Docker Compose 2.0+
+- 8 GB RAM (PostgreSQL, Redis, Kafka)
+- 2 GB wolnego miejsca na dysku
+
+### Do lokalnego development (bez Docker)
+
+- Java 21 JDK
+- Gradle 8.0+
+- PostgreSQL 16
+- Redis 7
+- Apache Kafka 7.5.0
+
+---
+
+## Instalacja i uruchomienie
+
+### Opcja 1: Docker Compose (Rekomendowana)
+
+```bash
+# Klonowanie repozytorium
+git clone <repository-url>
+cd CpuManagementSystem
+
+# Uruchomienie całego stacku
+docker-compose up -d
+
+# Sprawdzenie statusu
+docker-compose ps
+
+# Monitorowanie logów
+docker-compose logs -f backend-spring-app
+```
+
+**Dostępne usługi:**
+- Backend API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+- Kafka: localhost:9092
+- Grafana: http://localhost:3000
+
+### Opcja 2: Kompilacja i uruchomienie lokalne
+
+```bash
+# Przejście do folderu backend
+cd backend-spring-app
+
+# Kompilacja projektu
+./gradlew clean build
+
+# Uruchomienie (wymaga działającego PostgreSQL, Redis)
+./gradlew bootRun
+
+# URL aplikacji
+# http://localhost:8080
+```
+
+### Konfiguracja zmiennych środowiskowych
+
+Utwórz plik `.env`:
+
+```properties
+# PostgreSQL
+POSTGRES_DB=cpu_management_db
+POSTGRES_USER=cpu_admin
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_PORT=5432
+
+# Redis
+REDIS_PORT=6379
+
+# Backend
+BACKEND_PORT=8080
+SPRING_PROFILES_ACTIVE=docker
+
+# JWT
+JWT_SECRET=your_super_secret_key_min_32_chars
+JWT_EXPIRATION=86400000
+
+# Logging
+LOGGING_LEVEL_ROOT=INFO
+LOGGING_LEVEL_COM_CPU_MANAGEMENT=DEBUG
+```
+
+---
+
+## Testing
+
+### Uruchamianie testów
+
+```bash
+cd backend-spring-app
+
+# Wszystkie testy
+./gradlew test
+
+# Konkretny pakiet
+./gradlew test --tests "com.cpu.management.controller.*"
+
+# Raport testów
+# Plik: backend-spring-app/build/reports/tests/test/index.html
+```
+
+### Zasady testowania
+
+- **Unit tests** dla serwisów i mapperów (Mockito)
+- **Integration tests** dla kontrolerów (MockMvc)
+- **In-memory database** (H2) dla testów
+- **Dane testowe** za pomocą @DataJpaTest
+
+### Zagęszczenie testów
+
+```
+Encje:        24 tests (POJO validation)
+Mappery:      26 tests (DTO mapping)
+Serwisy:      46 tests (Business logic + mocks)
+Kontrolery:   22 tests (REST API + MockMvc)
+Exceptions:    7 tests (Custom exceptions)
+────────────────
+Total:       136 tests
+```
+
+---
+
+## Struktura projektu
+
+```
+CpuManagementSystem/
+├── backend-spring-app/
+│   ├── src/main/java/com/cpu/management/
+│   │   ├── config/          # Konfiguracja Spring
+│   │   ├── controller/      # REST endpoints
+│   │   ├── domain/          # JPA entities
+│   │   ├── dto/             # Data Transfer Objects
+│   │   ├── service/         # Business logic
+│   │   ├── repository/      # Data access layer
+│   │   ├── mapper/          # DTO mappers
+│   │   ├── security/        # Bezpieczeństwo
+│   │   ├── processor/       # Kafka consumers
+│   │   └── specification/   # JPA criteria
+│   ├── src/main/resources/
+│   │   ├── application.properties
+│   │   ├── static/          # HTML, CSS, JS
+│   │   └── templates/       # Thymeleaf templates
+│   ├── src/test/            # Unit i integration tests
+│   └── build.gradle         # Gradle configuration
+├── docker-compose.yml       # Orkiestracja kontenerów
+├── scripts/
+│   └── init.sql            # Inicjalizacja bazy
+└── README.md               # Ten pliki
+```
+
+---
+
+## Wersje
+
+- Wersja aplikacji: **1.0.0-SNAPSHOT**
+- Spring Boot: **4.0.0**
+- Java: **21 LTS**
+- PostgreSQL: **16**
+- Kafka: **7.5.0**
+
+---
+
+## Autor
+
+Dominik Dembski
