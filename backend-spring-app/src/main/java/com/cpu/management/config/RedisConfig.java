@@ -10,6 +10,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -20,13 +21,10 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 @Slf4j
-@ConditionalOnBean(RedisConnectionFactory.class)
 public class RedisConfig {
 
-    // RedisConnectionFactory is auto-configured by Spring Boot
-    // from spring.data.redis.* properties — no manual bean needed
-
     @Bean
+    @ConditionalOnBean(RedisConnectionFactory.class)
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
@@ -44,7 +42,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    @ConditionalOnBean(RedisConnectionFactory.class)
+    public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         log.info("Initializing Redis Cache Manager...");
         
         // Retry logic - Redis might be starting
@@ -103,6 +102,21 @@ public class RedisConfig {
         }
         
         return new ConcurrentMapCacheManager("default");
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CacheManager.class)
+    public CacheManager fallbackCacheManager() {
+        log.info("No Redis available, using in-memory ConcurrentMapCacheManager");
+        return new ConcurrentMapCacheManager(
+                "cpus", "allCpus",
+                "manufacturers", "allManufacturers",
+                "technologies", "allTechnologies",
+                "specifications", "allSpecifications",
+                "benchmarks", "allBenchmarks",
+                "manufacturerStats", "benchmarkStats",
+                "benchmarkStatsByCpu", "cpuRanking"
+        );
     }
 }
 
