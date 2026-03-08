@@ -26,6 +26,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Public paths that don't require authentication
+     */
+    private static final String[] PUBLIC_PATHS = {
+            "/v3/api-docs",
+            "/swagger-ui.html",
+            "/swagger-ui/",
+            "/swagger-initializer.js",
+            "/api/v1/auth/",
+            "/login",
+            "/register",
+            "/static/",
+            "/js/",
+            "/css/",
+            "/images/",
+            "/ws/",
+            "/health",
+            "/actuator/"
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String requestPath = request.getRequestURI();
+        for (String publicPath : PUBLIC_PATHS) {
+            if (requestPath.startsWith(publicPath)) {
+                log.debug("Skipping JWT filter for public path: {}", requestPath);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

@@ -45,6 +45,12 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         // Health check - public
                         .requestMatchers("/health", "/actuator/**").permitAll()
+                        // OpenAPI & Swagger UI - public
+                        .requestMatchers("/v3/api-docs").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-initializer.js").permitAll()
                         // Admin panel - authenticated
                         .requestMatchers("/admin/**").authenticated()
                         // API endpoints - authenticated
