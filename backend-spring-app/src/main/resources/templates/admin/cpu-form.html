@@ -122,6 +122,7 @@
             width: auto;
         }
     </style>
+    <link rel="stylesheet" href="/css/notifications.css">
 </head>
 <body>
     <div class="navbar">
@@ -131,6 +132,7 @@
             <a th:href="@{/admin/cpus}">CPU</a>
             <a th:href="@{/admin/manufacturers}">Producenci</a>
             <a th:href="@{/admin/technologies}">Technologie</a>
+            <a href="#" onclick="handleLogout(); return false;">Wyloguj się</a>
         </nav>
     </div>
 
@@ -245,5 +247,23 @@
             </form>
         </div>
     </div>
+
+    <!-- WebSocket Notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/js/notification-websocket.js"></script>
+    <script src="/js/auth-utils.js"></script>
+    <script>
+        function handleLogout() {
+            if (confirm('Czy na pewno chcesz się wylogować?')) {
+                fetch('/api/v1/auth/logout', {
+                    method: 'POST'
+                }).finally(() => {
+                    authUtils.clearToken();
+                    window.location.href = '/login';
+                });
+            }
+        }
+    </script>
 </body>
 </html>
