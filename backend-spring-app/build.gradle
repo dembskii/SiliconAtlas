@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.cpu.management'
 version = '1.0.0-SNAPSHOT'
-description = 'CPU Management System - Professional REST API'
+description = 'SiliconAtlas - Professional REST API'
 
 java {
 	toolchain {
