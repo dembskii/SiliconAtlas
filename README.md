@@ -1,4 +1,4 @@
-# CPU Management System
+# SiliconAtlas
 
 Profesjonalny system zarządzania procesorami z REST API i zaawansowaną architekturą rozproszoną. Projekt demonstruje best practices w tworzeniu nowoczesnych aplikacji webowych na Spring Boot.
 
@@ -18,7 +18,7 @@ Profesjonalny system zarządzania procesorami z REST API i zaawansowaną archite
 
 ## Przegląd projektu
 
-CPU Management System to kompleksowa aplikacja webowa do zarządzania procesorami i technologiami produkcyjnymi. Obsługuje:
+SiliconAtlas to kompleksowa aplikacja webowa do zarządzania procesorami i technologiami produkcyjnymi. Obsługuje:
 
 - **Zarządzanie katalogiem** procesorów z parametrami technicznymi
 - **Administracja producentami** i ich historią
@@ -224,7 +224,7 @@ curl -X GET http://localhost:8080/api/v1/cpus \
 ```bash
 # Klonowanie repozytorium
 git clone <repository-url>
-cd CpuManagementSystem
+cd SiliconAtlas
 
 # Uruchomienie całego stacku
 docker-compose up -d
@@ -330,7 +330,7 @@ Total:       136 tests
 ## Struktura projektu
 
 ```
-CpuManagementSystem/
+SiliconAtlas/
 ├── backend-spring-app/
 │   ├── src/main/java/com/cpu/management/
 │   │   ├── config/          # Konfiguracja Spring
