@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Copy pre-built JAR from host build directory
 # Build the JAR on your machine first: cd backend-spring-app && ./gradlew build
-COPY build/libs/cpu-management-system-1.0.0-SNAPSHOT.jar app.jar
+COPY build/libs/silicon-atlas-1.0.0-SNAPSHOT.jar app.jar
 
 # Create application user for security
 RUN addgroup -g 1001 appgroup && \
