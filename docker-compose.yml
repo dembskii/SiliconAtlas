@@ -127,6 +127,9 @@ services:
       SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
       SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
       
+      # Spring AI - Google Gemini Configuration
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      
       # Application Configuration
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}

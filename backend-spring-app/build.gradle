@@ -14,6 +14,10 @@ java {
 	}
 }
 
+ext {
+	set('springAiVersion', "1.1.2")
+}
+
 repositories {
 	mavenCentral()
 	maven { url "https://repo.spring.io/milestone" }
@@ -61,13 +65,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework:spring-messaging'
 	
-	// Spring AI - Chat support (Google GenAI can be configured at runtime)
-	implementation 'org.springframework.ai:spring-ai-core:0.8.1'
+	// Spring AI - Google Gemini Chat
+	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
 	
 	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2:2.2.224'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
 }
 
 tasks.named('test') {
