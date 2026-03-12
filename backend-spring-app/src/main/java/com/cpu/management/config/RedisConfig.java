@@ -8,7 +8,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
@@ -30,12 +29,12 @@ public class RedisConfig {
         template.setConnectionFactory(connectionFactory);
         
         StringRedisSerializer stringSerializer = new StringRedisSerializer();
-        GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
+        JacksonRedisSerializer jacksonRedisSerializer = new JacksonRedisSerializer();
         
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
-        template.setValueSerializer(jackson2JsonRedisSerializer);
-        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        template.setValueSerializer(jacksonRedisSerializer);
+        template.setHashValueSerializer(jacksonRedisSerializer);
         
         template.afterPropertiesSet();
         return template;
@@ -61,7 +60,7 @@ public class RedisConfig {
                         .serializeKeysWith(
                                 RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                         .serializeValuesWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                                RedisSerializationContext.SerializationPair.fromSerializer(new JacksonRedisSerializer()));
 
                 return RedisCacheManager.builder(connectionFactory)
                         .cacheDefaults(config)
