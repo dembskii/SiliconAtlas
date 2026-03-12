@@ -15,7 +15,13 @@ java {
 }
 
 repositories {
-	mavenCentral() 
+	mavenCentral()
+	maven { url "https://repo.spring.io/milestone" }
+	maven { url "https://repo.spring.io/snapshot" }
+	maven {
+    name = 'Central Portal Snapshots'
+    url = 'https://central.sonatype.com/repository/maven-snapshots/'
+  }
 }
 
 dependencies {
@@ -54,6 +60,9 @@ dependencies {
 	// WebSocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework:spring-messaging'
+	
+	// Spring AI - Chat support (Google GenAI can be configured at runtime)
+	implementation 'org.springframework.ai:spring-ai-core:0.8.1'
 	
 	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
