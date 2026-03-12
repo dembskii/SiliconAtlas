@@ -1,0 +1,1081 @@
+{
+	"info": {
+		"_postman_id": "cpu-database-api-v2",
+		"name": "CPU Database API - Complete Collection with Auth",
+		"description": "Kompletna kolekcja testów API dla projektu CPU Database z JWT autentykacją.\n\nZawiera testy dla wszystkich endpointów CRUD oraz logiki biznesowej.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "authToken",
+			"value": ""
+		},
+		{
+			"key": "cpuId",
+			"value": ""
+		},
+		{
+			"key": "manufacturerId",
+			"value": ""
+		},
+		{
+			"key": "technologyId",
+			"value": ""
+		},
+		{
+			"key": "benchmarkId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has token', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('accessToken');",
+									"    pm.expect(jsonData).to.have.property('refreshToken');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"TestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has accessToken', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('accessToken');",
+									"    pm.collectionVariables.set('authToken', jsonData.accessToken);",
+									"});",
+									"",
+									"pm.test('Token is not empty', function () {",
+									"    var token = pm.collectionVariables.get('authToken');",
+									"    pm.expect(token).to.not.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"TestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Manufacturers",
+			"item": [
+				{
+					"name": "Create Manufacturer - AMD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('manufacturerId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Manufacturer name is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('AMD');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"AMD\",\n    \"country\": \"USA\",\n    \"foundedYear\": 1969\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Create Manufacturer - Intel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Intel\",\n    \"country\": \"USA\",\n    \"foundedYear\": 1968\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Get All Manufacturers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers"]
+						}
+					}
+				},
+				{
+					"name": "Get Manufacturer by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Manufacturer has correct id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('manufacturerId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Manufacturer country updated', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.country).to.eql('United States');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"AMD\",\n    \"country\": \"United States\",\n    \"foundedYear\": 1969\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/manufacturers/{{manufacturerId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "manufacturers", "{{manufacturerId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Technologies",
+			"item": [
+				{
+					"name": "Create Technology - SMT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('technologyId', jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"SMT\",\n    \"description\": \"Simultaneous Multithreading - AMD's technology for running multiple threads per core\",\n    \"releaseYear\": 2003\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Create Technology - Hyper-Threading",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hyper-Threading\",\n    \"description\": \"Intel's proprietary SMT implementation\",\n    \"releaseYear\": 2002\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Get All Technologies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies"]
+						}
+					}
+				},
+				{
+					"name": "Get Technology by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies", "{{technologyId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Technology",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "technologies", "{{technologyId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "CPUs",
+			"item": [
+				{
+					"name": "Create CPU - Basic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has id field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('cpuId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('CPU model is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.model).to.eql('Ryzen 7 5800X');",
+									"});",
+									"",
+									"pm.test('CPU has correct specs', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.cores).to.eql(8);",
+									"    pm.expect(jsonData.threads).to.eql(16);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 7 5800X\",\n    \"cores\": 8,\n    \"threads\": 16,\n    \"frequencyGhz\": 3.8\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus"]
+						}
+					}
+				},
+				{
+					"name": "Create CPU with Relations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('CPU has manufacturer assigned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('manufacturer');",
+									"    pm.expect(jsonData.manufacturer).to.not.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 9 5950X\",\n    \"cores\": 16,\n    \"threads\": 32,\n    \"frequencyGhz\": 3.4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus/with-relations?manufacturerId={{manufacturerId}}&technologyIds={{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "with-relations"],
+							"query": [
+								{
+									"key": "manufacturerId",
+									"value": "{{manufacturerId}}"
+								},
+								{
+									"key": "technologyIds",
+									"value": "{{technologyId}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All CPUs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus"]
+						}
+					}
+				},
+				{
+					"name": "Get CPU by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('CPU has correct id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('cpuId'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('CPU frequency updated', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.frequencyGhz).to.eql(4.0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Ryzen 7 5800X\",\n    \"cores\": 8,\n    \"threads\": 16,\n    \"frequencyGhz\": 4.0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Manufacturer Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus/manufacturer-stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "manufacturer-stats"]
+						}
+					}
+				},
+				{
+					"name": "Delete CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/cpus/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cpus", "{{cpuId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Benchmarks",
+			"item": [
+				{
+					"name": "Add Benchmark to CPU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Benchmark has id', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('benchmarkId', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Benchmark linked to CPU', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('cpu');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"testName\": \"Cinebench R23 Test\",\n    \"singleCoreScore\": 1575,\n    \"multiCoreScore\": 15000,\n    \"passmarkScore\": 28000,\n    \"cinebenchR23\": 15500.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks/cpu/{{cpuId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "cpu", "{{cpuId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get All Benchmarks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks"]
+						}
+					}
+				},
+				{
+					"name": "Get Benchmark by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks/{{benchmarkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "{{benchmarkId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get CPU Ranking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks/ranking?sortBy=passmark&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "ranking"],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "passmark"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Benchmark Stats by Manufacturer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks/stats/manufacturer/AMD",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "stats", "manufacturer", "AMD"]
+						}
+					}
+				},
+				{
+					"name": "Delete Benchmark",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/benchmarks/{{benchmarkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "benchmarks", "{{benchmarkId}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
