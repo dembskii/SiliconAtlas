@@ -9,11 +9,11 @@
 .auth-card {
   width: 100%;
   max-width: 440px;
-  background: #16213e;
+  background: #0f172a;
   border-radius: 16px;
   padding: 2.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid #2a2a4a;
+  border: 1px solid #1e3a5f;
 }
 
 .auth-header {
@@ -23,15 +23,26 @@
   h1 {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #f1f5f9;
     margin: 0 0 0.5rem;
   }
 
   p {
-    color: #8888a8;
+    color: #64748b;
     font-size: 0.95rem;
     margin: 0;
   }
+}
+
+.alert-error {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
 
 .auth-form {
@@ -46,7 +57,7 @@
   gap: 0.4rem;
 
   label {
-    color: #c0c0d0;
+    color: #94a3b8;
     font-size: 0.875rem;
     font-weight: 600;
   }
@@ -67,22 +78,22 @@
   input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
-    background: #0f3460;
-    border: 2px solid #2a2a4a;
+    background: #0c1929;
+    border: 2px solid #1e3a5f;
     border-radius: 10px;
-    color: #e0e0e0;
+    color: #e2e8f0;
     font-size: 0.95rem;
     transition: all 0.2s;
     outline: none;
     box-sizing: border-box;
 
     &::placeholder {
-      color: #6060808c;
+      color: #475569;
     }
 
     &:focus {
-      border-color: #6c63ff;
-      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
   }
 }
@@ -90,7 +101,7 @@
 .btn-submit {
   margin-top: 0.5rem;
   padding: 0.85rem;
-  background: #6c63ff;
+  background: #3b82f6;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -99,14 +110,19 @@
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover {
-    background: #5a52d5;
+  &:hover:not(:disabled) {
+    background: #2563eb;
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 
@@ -114,22 +130,22 @@
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #2a2a4a;
+  border-top: 1px solid #1e3a5f;
 
   p {
-    color: #8888a8;
+    color: #64748b;
     font-size: 0.9rem;
     margin: 0;
   }
 
   a {
-    color: #6c63ff;
+    color: #3b82f6;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s;
 
     &:hover {
-      color: #8b83ff;
+      color: #60a5fa;
     }
   }
 }

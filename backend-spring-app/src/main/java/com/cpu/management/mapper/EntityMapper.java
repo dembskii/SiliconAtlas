@@ -29,6 +29,10 @@ public class EntityMapper {
                 .technologyNames(cpu.getTechnologies() != null 
                         ? cpu.getTechnologies().stream().map(Technology::getName).collect(Collectors.toList())
                         : Collections.emptyList())
+                .technologyIds(cpu.getTechnologies() != null
+                        ? cpu.getTechnologies().stream().map(Technology::getId).collect(Collectors.toList())
+                        : Collections.emptyList())
+                .specification(cpu.getSpecification() != null ? toCpuSpecificationDTO(cpu.getSpecification()) : null)
                 .build();
     }
 

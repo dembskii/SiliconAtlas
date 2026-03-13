@@ -1,0 +1,134 @@
+<div class="cpu-list-page">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Procesory</h1>
+      <span class="badge">{{ totalElements }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="showFilters = !showFilters">
+        {{ showFilters ? '✕ Ukryj filtry' : '🔍 Filtruj' }}
+      </button>
+      <a routerLink="/cpus/new" class="btn btn-primary">➕ Dodaj procesor</a>
+    </div>
+  </div>
+
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-error">{{ errorMessage }}</div>
+  }
+
+  @if (showFilters) {
+    <div class="filters-panel">
+      <h3>Wyszukiwanie zaawansowane</h3>
+      <form (ngSubmit)="onSearch()" class="filters-grid">
+        <div class="filter-group">
+          <label>Model</label>
+          <input type="text" [(ngModel)]="criteria.model" name="model" placeholder="Szukaj modelu...">
+        </div>
+        <div class="filter-group">
+          <label>Producent</label>
+          <input type="text" [(ngModel)]="criteria.manufacturer" name="manufacturer" placeholder="Nazwa producenta...">
+        </div>
+        <div class="filter-group">
+          <label>Min rdzeni</label>
+          <input type="number" [(ngModel)]="criteria.minCores" name="minCores" placeholder="Min">
+        </div>
+        <div class="filter-group">
+          <label>Max rdzeni</label>
+          <input type="number" [(ngModel)]="criteria.maxCores" name="maxCores" placeholder="Max">
+        </div>
+        <div class="filter-group">
+          <label>Min wątków</label>
+          <input type="number" [(ngModel)]="criteria.minThreads" name="minThreads" placeholder="Min">
+        </div>
+        <div class="filter-group">
+          <label>Max wątków</label>
+          <input type="number" [(ngModel)]="criteria.maxThreads" name="maxThreads" placeholder="Max">
+        </div>
+        <div class="filter-group">
+          <label>Min częstotliwość (GHz)</label>
+          <input type="number" step="0.1" [(ngModel)]="criteria.minFrequency" name="minFrequency" placeholder="Min">
+        </div>
+        <div class="filter-group">
+          <label>Max częstotliwość (GHz)</label>
+          <input type="number" step="0.1" [(ngModel)]="criteria.maxFrequency" name="maxFrequency" placeholder="Max">
+        </div>
+        <div class="filter-group">
+          <label>Technologia</label>
+          <input type="text" [(ngModel)]="criteria.technology" name="technology" placeholder="Nazwa technologii...">
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-primary">🔍 Szukaj</button>
+          <button type="button" class="btn btn-outline" (click)="clearFilters()">Wyczyść</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Ładowanie procesorów...</p>
+    </div>
+  } @else if (cpus.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🖥️</div>
+      <h3>Brak procesorów</h3>
+      <p>Nie znaleziono procesorów spełniających kryteria.</p>
+      <a routerLink="/cpus/new" class="btn btn-primary">Dodaj pierwszy procesor</a>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Producent</th>
+            <th>Rdzenie</th>
+            <th>Wątki</th>
+            <th>Częstotliwość</th>
+            <th>Technologie</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cpu of cpus; track cpu.id) {
+            <tr>
+              <td class="model-name">{{ cpu.model }}</td>
+              <td>{{ cpu.manufacturerName }}</td>
+              <td>{{ cpu.cores }}</td>
+              <td>{{ cpu.threads }}</td>
+              <td>{{ cpu.frequencyGhz }} GHz</td>
+              <td>
+                <div class="tech-badges">
+                  @for (tech of cpu.technologyNames; track tech) {
+                    <span class="tech-badge">{{ tech }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <a [routerLink]="['/cpus', cpu.id]" class="btn-icon" title="Szczegóły">👁️</a>
+                  <a [routerLink]="['/cpus', cpu.id, 'edit']" class="btn-icon" title="Edytuj">✏️</a>
+                  <button class="btn-icon btn-danger" (click)="deleteCpu(cpu.id, cpu.model)" title="Usuń">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="btn btn-outline btn-sm" [disabled]="page === 0" (click)="goToPage(page - 1)">← Poprzednia</button>
+        @for (p of pages; track p) {
+          <button class="btn btn-sm" [class.btn-primary]="p === page" [class.btn-outline]="p !== page" (click)="goToPage(p)">{{ p + 1 }}</button>
+        }
+        <button class="btn btn-outline btn-sm" [disabled]="page >= totalPages - 1" (click)="goToPage(page + 1)">Następna →</button>
+      </div>
+    }
+  }
+</div>

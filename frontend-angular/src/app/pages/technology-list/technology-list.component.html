@@ -1,0 +1,72 @@
+<div class="list-page">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Technologie</h1>
+      <span class="badge">{{ technologies.length }}</span>
+    </div>
+    <button class="btn btn-primary" (click)="showForm = !showForm">
+      {{ showForm ? '✕ Anuluj' : '➕ Dodaj technologię' }}
+    </button>
+  </div>
+
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-error">{{ errorMessage }}</div>
+  }
+
+  @if (showForm) {
+    <div class="add-form-panel">
+      <h3>Nowa technologia</h3>
+      <form (ngSubmit)="addTechnology()" class="inline-form">
+        <div class="form-group">
+          <label>Nazwa <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newName" name="name" placeholder="np. DDR5" required>
+        </div>
+        <div class="form-group wide">
+          <label>Opis</label>
+          <input type="text" [(ngModel)]="newDescription" name="description" placeholder="Krótki opis technologii...">
+        </div>
+        <div class="form-group">
+          <label>Rok wydania</label>
+          <input type="number" [(ngModel)]="newReleaseYear" name="releaseYear" placeholder="np. 2020">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Dodaj</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Ładowanie technologii...</p>
+    </div>
+  } @else if (technologies.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">⚡</div>
+      <h3>Brak technologii</h3>
+      <p>Dodaj pierwszą technologię, aby rozpocząć.</p>
+      <button class="btn btn-primary" (click)="showForm = true">Dodaj technologię</button>
+    </div>
+  } @else {
+    <div class="tech-cards">
+      @for (tech of technologies; track tech.id) {
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-name">{{ tech.name }}</div>
+            <button class="btn-icon btn-danger" (click)="deleteTechnology(tech.id, tech.name)" title="Usuń">🗑️</button>
+          </div>
+          @if (tech.description) {
+            <p class="tech-desc">{{ tech.description }}</p>
+          }
+          @if (tech.releaseYear) {
+            <span class="tech-year">Rok wydania: {{ tech.releaseYear }}</span>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

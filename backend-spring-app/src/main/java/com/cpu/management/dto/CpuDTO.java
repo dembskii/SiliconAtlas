@@ -19,4 +19,6 @@ public class CpuDTO {
     private String manufacturerName;
     private UUID manufacturerId;
     private List<String> technologyNames;
+    private List<UUID> technologyIds;
+    private CpuSpecificationDTO specification;
 }

@@ -5,6 +5,10 @@
       <p>Zaloguj się do swojego konta</p>
     </div>
 
+    @if (errorMessage) {
+      <div class="alert alert-error">{{ errorMessage }}</div>
+    }
+
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
         <label for="username">Nazwa użytkownika</label>
@@ -17,6 +21,7 @@
             name="username"
             placeholder="Wpisz nazwę użytkownika"
             required
+            [disabled]="loading"
           />
         </div>
       </div>
@@ -32,11 +37,14 @@
             name="password"
             placeholder="Wpisz hasło"
             required
+            [disabled]="loading"
           />
         </div>
       </div>
 
-      <button type="submit" class="btn-submit">Zaloguj się</button>
+      <button type="submit" class="btn-submit" [disabled]="loading">
+        {{ loading ? 'Logowanie...' : 'Zaloguj się' }}
+      </button>
     </form>
 
     <div class="auth-footer">
