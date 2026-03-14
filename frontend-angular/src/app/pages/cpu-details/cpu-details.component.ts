@@ -152,10 +152,7 @@ export class CpuDetailsComponent implements OnInit {
     this.cpuService.getById(id).subscribe({
       next: cpu => {
         this.cpu = cpu;
-        this.cpuService.getSpecifications(cpu.id).subscribe({
-          next: (spec) => this.specification = spec,
-          error: () => this.specification = null
-        });
+        this.specification = cpu.specification ?? null;
         this.cpuService.getBenchmarks(cpu.id).subscribe({
           next: (items) => this.benchmarks = items,
           error: () => this.benchmarks = []

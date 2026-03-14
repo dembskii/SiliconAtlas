@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../environment';
-import { Cpu, CpuCreate, CpuSearchCriteria, CpuSpecification, CpuSpecificationCreate, CpuBenchmark, PagedResponse } from '../models/cpu.model';
+import { Cpu, CpuCreate, CpuSearchCriteria, CpuBenchmark, PagedResponse } from '../models/cpu.model';
 import { ManufacturerStats } from '../models/stats.model';
 
 @Injectable({ providedIn: 'root' })
@@ -50,11 +50,9 @@ export class CpuService {
     return this.http.get<ManufacturerStats[]>(`${this.url}/manufacturer-stats`);
   }
 
-  getSpecifications(cpuId: string): Observable<CpuSpecification> {
-    return this.http.get<CpuSpecification>(`${this.url}/${cpuId}/specification`);
-  }
-
   getBenchmarks(cpuId: string): Observable<CpuBenchmark[]> {
-    return this.http.get<CpuBenchmark[]>(`${environment.apiUrl}/benchmarks/cpu/${cpuId}`);
+    return this.http.get<CpuBenchmark[]>(`${environment.apiUrl}/benchmarks`).pipe(
+      map((benchmarks) => benchmarks.filter((benchmark) => benchmark.cpuId === cpuId))
+    );
   }
 }
