@@ -37,17 +37,15 @@ import { Technology } from '../../models/technology.model';
             <div class="md:col-span-2">
               <div class="mb-1 flex items-center justify-between gap-3">
                 <label class="block text-sm font-medium text-slate-700">Nazwa modelu</label>
-                @if (!isEdit) {
-                  <button
-                    type="button"
-                    (click)="autofillFromAi()"
-                    [disabled]="autofillLoading"
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <mat-icon class="text-[16px] w-[16px] h-[16px]">auto_fix_high</mat-icon>
-                    {{ autofillLoading ? 'Uzupelniam...' : 'Autofill' }}
-                  </button>
-                }
+                <button
+                  type="button"
+                  (click)="autofillFromAi()"
+                  [disabled]="autofillLoading"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <mat-icon class="text-[16px] w-[16px] h-[16px]">auto_fix_high</mat-icon>
+                  {{ autofillLoading ? 'Uzupelniam...' : 'Autofill' }}
+                </button>
               </div>
               <input type="text" [(ngModel)]="model" name="model" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
             </div>
