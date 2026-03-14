@@ -79,17 +79,21 @@ export class LoginComponent {
 
     this.loading = true;
     this.errorMessage = '';
+    
+    console.log('Login attempt for user:', this.username);
 
     this.authService.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
+        console.log('Login successful, redirecting to app');
         this.loading = false;
         this.router.navigate(['/app']);
       },
       error: (err) => {
+        console.error('Login error:', err);
         this.loading = false;
         this.errorMessage = err.status === 401
           ? 'Nieprawidłowa nazwa użytkownika lub hasło'
-          : 'Wystąpił błąd podczas logowania';
+          : 'Wystąpił błąd podczas logowania: ' + (err.error?.message || err.message);
       }
     });
   }
