@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,7 +44,12 @@ public class CpuAiService {
             String promptText = buildPrompt(cpuName, possibleManufacturers, possibleTechnologies);
             
             // Call Gemini API
-            Prompt prompt = new Prompt(promptText);
+            Prompt prompt = new Prompt(promptText,GoogleGenAiChatOptions.builder()
+                    .model("gemini-2.5-flash")
+                    .temperature(0.7)
+                    .maxOutputTokens(2000)
+                    .thinkingBudget(0)
+                    .build());
             String response = chatModel.call(prompt).getResult().getOutput().getText();
             
             log.info("AI Response for CPU {}: {}", cpuName, response);
@@ -88,10 +94,12 @@ public class CpuAiService {
             "Allowed manufacturers (must use exactly one from this list): %s\n" +
             "Allowed technologies (use only values from this list in the technologies array): %s\n\n" +
             "Important rules:\n" +
-            "1. Return technologies as a JSON array of strings.\n" +
-            "2. Do not invent manufacturer or technology names outside the provided lists.\n" +
-            "3. If uncertain, use an empty technologies array [] and choose the closest allowed manufacturer.\n" +
-            "4. Return only raw JSON, without markdown code fences.\n",
+            "1. Enhance and normalize model: return the full market CPU name in \"model\" (proper casing, full family, SKU, and vendor prefix if missing in input, e.g. input \"Ryzen 7 3700X\" -> model \"AMD Ryzen 7 3700X\").\n" +
+            "2. Keep model specific and exact; do not return generic names.\n" +
+            "3. Return technologies as a JSON array of strings.\n" +
+            "4. Do not invent manufacturer or technology names outside the provided lists.\n" +
+            "5. If uncertain, use an empty technologies array [] and choose the closest allowed manufacturer.\n" +
+            "6. Return only raw JSON, without markdown code fences.\n",
             cpuName,
             manufacturerList,
             technologyList
