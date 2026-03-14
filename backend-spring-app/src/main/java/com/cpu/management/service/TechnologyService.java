@@ -1,5 +1,6 @@
 package com.cpu.management.service;
 
+import com.cpu.management.domain.Cpu;
 import com.cpu.management.domain.Technology;
 import com.cpu.management.dto.TechnologyCreateDTO;
 import com.cpu.management.dto.TechnologyDTO;
@@ -8,6 +9,9 @@ import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.TechnologyRepository;
 import com.cpu.management.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ public class TechnologyService {
     private final TechnologyRepository technologyRepository;
     private final EntityMapper entityMapper;
     private final KafkaProducerService kafkaProducerService;
+    private final CacheManager cacheManager;
 
     // =====================================================
     // METODY DTO - dla REST API
@@ -68,12 +73,23 @@ public class TechnologyService {
         return entityMapper.toTechnologyDTOList(technologies);
     }
 
-    @CacheEvict(value = {"allTechnologies", "technologies"}, key = "#id")
+    @Caching(evict = {
+            @CacheEvict(value = "technologies", key = "#id"),
+            @CacheEvict(value = "allTechnologies", key = "'allTechnologies'")
+    })
     public void deleteTechnologyById(UUID id) {
         Optional<Technology> technologyOpt = technologyRepository.findById(id);
         if (technologyOpt.isPresent()) {
             Technology technology = technologyOpt.get();
+            List<UUID> impactedCpuIds = technology.getCpus() == null
+                ? List.of()
+                : technology.getCpus().stream()
+                    .map(Cpu::getId)
+                    .filter(cpuId -> cpuId != null)
+                    .toList();
+
             technologyRepository.deleteById(id);
+            evictImpactedCpuCaches(impactedCpuIds);
             
             // Publish event to Kafka
             TechnologyEventDTO event = TechnologyEventDTO.builder()
@@ -162,6 +178,18 @@ public class TechnologyService {
         List<Technology> technologies = new ArrayList<>();
         technologyRepository.findAll().forEach(technologies::add);
         return technologies;
+    }
+
+    private void evictImpactedCpuCaches(List<UUID> impactedCpuIds) {
+        Cache cpusCache = cacheManager.getCache("cpus");
+        if (cpusCache != null) {
+            impactedCpuIds.forEach(cpusCache::evict);
+        }
+
+        Cache allCpusCache = cacheManager.getCache("allCpus");
+        if (allCpusCache != null) {
+            allCpusCache.evict("allCpus");
+        }
     }
 }
  

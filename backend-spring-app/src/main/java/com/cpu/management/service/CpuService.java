@@ -22,6 +22,7 @@ import com.cpu.management.repository.TechnologyRepository;
 import com.cpu.management.service.kafka.KafkaProducerService;
 import com.cpu.management.specification.CpuSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -55,7 +56,7 @@ public class CpuService {
     // PODSTAWOWE OPERACJE CRUD (zwracają DTO) - dla REST API
     // =====================================================
 
-    @CacheEvict(value = {"allCpus", "cpus"}, allEntries = true)
+    @CacheEvict(value = {"allCpus", "cpus", "manufacturerStats"}, allEntries = true)
     public CpuDTO addCpu(CpuCreateDTO cpuCreateDTO) {
         // Sprawdź czy model już istnieje
         if (cpuRepository.findByModel(cpuCreateDTO.getModel()).isPresent()) {
@@ -112,7 +113,11 @@ public class CpuService {
         return entityMapper.toCpuDTOList(cpus);
     }
 
-    @CacheEvict(value = {"allCpus", "cpus"}, key = "#id")
+        @Caching(evict = {
+            @CacheEvict(value = "cpus", key = "#id"),
+            @CacheEvict(value = "allCpus", key = "'allCpus'"),
+            @CacheEvict(value = "manufacturerStats", allEntries = true)
+        })
     public void deleteCpuById(UUID id) {
         if (!cpuRepository.existsById(id)) {
             throw new CpuNotFoundException(id);
@@ -141,7 +146,7 @@ public class CpuService {
         kafkaProducerService.publishCpuEvent(event);
     }
 
-    @CacheEvict(value = {"allCpus", "cpus"}, allEntries = true)
+    @CacheEvict(value = {"allCpus", "cpus", "manufacturerStats"}, allEntries = true)
     public CpuDTO updateCpu(UUID id, CpuCreateDTO cpuCreateDTO) {
         Cpu existingCpu = cpuRepository.findById(id)
                 .orElseThrow(() -> new CpuNotFoundException(id));

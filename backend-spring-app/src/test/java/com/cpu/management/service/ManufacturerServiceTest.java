@@ -1,5 +1,6 @@
 package com.cpu.management.service;
 
+import com.cpu.management.domain.Cpu;
 import com.cpu.management.domain.Manufacturer;
 import com.cpu.management.dto.ManufacturerCreateDTO;
 import com.cpu.management.dto.ManufacturerDTO;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import java.util.*;
 
@@ -28,6 +31,12 @@ class ManufacturerServiceTest {
     private EntityMapper entityMapper;
     @Mock
     private KafkaProducerService kafkaProducerService;
+    @Mock
+    private CacheManager cacheManager;
+    @Mock
+    private Cache cpusCache;
+    @Mock
+    private Cache allCpusCache;
 
     @InjectMocks
     private ManufacturerService manufacturerService;
@@ -57,6 +66,9 @@ class ManufacturerServiceTest {
                 .country("USA")
                 .foundedYear(1968)
                 .build();
+
+        lenient().when(cacheManager.getCache("cpus")).thenReturn(cpusCache);
+        lenient().when(cacheManager.getCache("allCpus")).thenReturn(allCpusCache);
     }
 
     @Test
@@ -117,7 +129,23 @@ class ManufacturerServiceTest {
         manufacturerService.deleteManufacturerById(sampleId);
 
         verify(manufacturerRepository).deleteById(sampleId);
+        verify(allCpusCache).evict("allCpus");
         verify(kafkaProducerService).publishManufacturerEvent(any());
+    }
+
+    @Test
+    void shouldEvictOnlyRemovedCpuCacheEntriesWhenDeletingManufacturer() {
+        UUID removedCpuId = UUID.randomUUID();
+        Cpu removedCpu = new Cpu("Ryzen 5 7600", 6, 12, 3.8);
+        removedCpu.setId(removedCpuId);
+        sampleManufacturer.setCpus(List.of(removedCpu));
+
+        when(manufacturerRepository.findById(sampleId)).thenReturn(Optional.of(sampleManufacturer));
+
+        manufacturerService.deleteManufacturerById(sampleId);
+
+        verify(cpusCache).evict(removedCpuId);
+        verify(allCpusCache).evict("allCpus");
     }
 
     @Test
