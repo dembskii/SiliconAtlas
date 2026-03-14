@@ -66,29 +66,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String jwt = extractJwtFromRequest(request);
+            log.debug("JWT extracted from request. Token present: {}", jwt != null);
             
             if (jwt != null) {
-                String username = jwtProvider.extractUsername(jwt);
-                
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                try {
+                    String username = jwtProvider.extractUsername(jwt);
+                    log.debug("JWT username extracted: {}", username);
                     
-                    if (jwtProvider.isTokenValid(jwt, userDetails)) {
-                        SecurityContext context = SecurityContextHolder.createEmptyContext();
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities());
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        context.setAuthentication(authToken);
-                        SecurityContextHolder.setContext(context);
-                        log.debug("JWT Token validated for user: {}", username);
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        log.debug("UserDetails loaded for: {}", username);
+                        
+                        if (jwtProvider.isTokenValid(jwt, userDetails)) {
+                            SecurityContext context = SecurityContextHolder.createEmptyContext();
+                            UsernamePasswordAuthenticationToken authToken =
+                                    new UsernamePasswordAuthenticationToken(
+                                            userDetails,
+                                            null,
+                                            userDetails.getAuthorities());
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            context.setAuthentication(authToken);
+                            SecurityContextHolder.setContext(context);
+                            log.info("JWT Token validated and authenticated for user: {}", username);
+                        } else {
+                            log.warn("JWT Token validation FAILED for user: {}", username);
+                        }
+                    } else {
+                        log.debug("Username is null or authentication already exists");
                     }
+                } catch (Exception e) {
+                    log.error("JWT Token validation exception for token: {}", jwt.substring(0, 30), e);
                 }
             }
         } catch (Exception e) {
-            log.error("JWT Token validation failed: {}", e.getMessage());
+            log.error("JWT Token extraction/validation failed: {}", e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);

@@ -1,0 +1,80 @@
+<div class="list-page">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Producenci</h1>
+      <span class="badge">{{ manufacturers.length }}</span>
+    </div>
+    <button class="btn btn-primary" (click)="showForm = !showForm">
+      {{ showForm ? '✕ Anuluj' : '➕ Dodaj producenta' }}
+    </button>
+  </div>
+
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-error">{{ errorMessage }}</div>
+  }
+
+  @if (showForm) {
+    <div class="add-form-panel">
+      <h3>Nowy producent</h3>
+      <form (ngSubmit)="addManufacturer()" class="inline-form">
+        <div class="form-group">
+          <label>Nazwa <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newName" name="name" placeholder="np. AMD" required>
+        </div>
+        <div class="form-group">
+          <label>Kraj</label>
+          <input type="text" [(ngModel)]="newCountry" name="country" placeholder="np. USA">
+        </div>
+        <div class="form-group">
+          <label>Rok założenia</label>
+          <input type="number" [(ngModel)]="newFoundedYear" name="foundedYear" placeholder="np. 1969">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Dodaj</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Ładowanie producentów...</p>
+    </div>
+  } @else if (manufacturers.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🏭</div>
+      <h3>Brak producentów</h3>
+      <p>Dodaj pierwszego producenta, aby rozpocząć.</p>
+      <button class="btn btn-primary" (click)="showForm = true">Dodaj producenta</button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nazwa</th>
+            <th>Kraj</th>
+            <th>Rok założenia</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of manufacturers; track m.id) {
+            <tr>
+              <td class="name-cell">{{ m.name }}</td>
+              <td>{{ m.country || '—' }}</td>
+              <td>{{ m.foundedYear || '—' }}</td>
+              <td>
+                <button class="btn-icon btn-danger" (click)="deleteManufacturer(m.id, m.name)" title="Usuń">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

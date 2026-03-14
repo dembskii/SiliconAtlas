@@ -19,7 +19,10 @@ public class CpuBenchmark {
     private int singleCoreScore;
     private int multiCoreScore;
     private int passmarkScore;
+
+    @Column(name = "cinebench_r23")
     private double cinebenchR23;
+
     private String testDate;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)

@@ -1,0 +1,80 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <h1>Panel administracyjny</h1>
+    <p>Przegląd systemu zarządzania procesorami</p>
+  </div>
+
+  <div class="stats-grid">
+    <a routerLink="/cpus" class="stat-card">
+      <div class="stat-icon">🖥️</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ cpuCount }}</span>
+        <span class="stat-label">Procesory</span>
+      </div>
+    </a>
+    <a routerLink="/manufacturers" class="stat-card">
+      <div class="stat-icon">🏭</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ manufacturerCount }}</span>
+        <span class="stat-label">Producenci</span>
+      </div>
+    </a>
+    <a routerLink="/technologies" class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ technologyCount }}</span>
+        <span class="stat-label">Technologie</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Szybkie akcje</h2>
+    <div class="actions-grid">
+      <a routerLink="/cpus/new" class="action-card">
+        <span class="action-icon">➕</span>
+        <span>Dodaj procesor</span>
+      </a>
+      <a routerLink="/cpus" class="action-card">
+        <span class="action-icon">🔍</span>
+        <span>Przeglądaj procesory</span>
+      </a>
+      <a routerLink="/manufacturers" class="action-card">
+        <span class="action-icon">📋</span>
+        <span>Zarządzaj producentami</span>
+      </a>
+      <a routerLink="/technologies" class="action-card">
+        <span class="action-icon">🔧</span>
+        <span>Zarządzaj technologiami</span>
+      </a>
+    </div>
+  </div>
+
+  @if (manufacturerStats.length > 0) {
+    <div class="stats-table-section">
+      <h2>Statystyki producentów</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Producent</th>
+              <th>Liczba CPU</th>
+              <th>Śr. rdzenie</th>
+              <th>Śr. częstotliwość</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stat of manufacturerStats; track stat.manufacturerName) {
+              <tr>
+                <td>{{ stat.manufacturerName }}</td>
+                <td>{{ stat.cpuCount }}</td>
+                <td>{{ stat.avgCores | number:'1.1-1' }}</td>
+                <td>{{ stat.avgFrequency | number:'1.2-2' }} GHz</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

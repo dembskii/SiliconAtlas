@@ -48,13 +48,19 @@ class CpuServiceTest {
     private CpuDTO sampleCpuDTO;
     private CpuCreateDTO sampleCreateDTO;
     private UUID sampleId;
+    private UUID manufacturerId;
+    private Manufacturer sampleManufacturer;
 
     @BeforeEach
     void setUp() {
         sampleId = UUID.randomUUID();
+        manufacturerId = UUID.randomUUID();
+
+        sampleManufacturer = new Manufacturer("AMD", "USA", 1969);
+        sampleManufacturer.setId(manufacturerId);
 
         sampleCpu = new Cpu("Ryzen 9 7950X", 16, 32, 4.5);
-        sampleCpu.setManufacturer(new Manufacturer("AMD", "USA", 1969));
+        sampleCpu.setManufacturer(sampleManufacturer);
 
         sampleCpuDTO = CpuDTO.builder()
                 .id(sampleId)
@@ -70,6 +76,7 @@ class CpuServiceTest {
                 .cores(16)
                 .threads(32)
                 .frequencyGhz(4.5)
+            .manufacturerId(manufacturerId)
                 .build();
     }
 
@@ -80,6 +87,7 @@ class CpuServiceTest {
     @Test
     void shouldAddCpuSuccessfully() {
         when(cpuRepository.findByModel("Ryzen 9 7950X")).thenReturn(Optional.empty());
+        when(manufacturerRepository.findById(manufacturerId)).thenReturn(Optional.of(sampleManufacturer));
         when(entityMapper.toCpuEntity(sampleCreateDTO)).thenReturn(sampleCpu);
         when(cpuRepository.save(sampleCpu)).thenReturn(sampleCpu);
         when(entityMapper.toCpuDTO(sampleCpu)).thenReturn(sampleCpuDTO);

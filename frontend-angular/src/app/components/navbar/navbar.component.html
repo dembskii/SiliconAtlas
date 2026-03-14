@@ -13,10 +13,30 @@
   <div class="navbar-menu" [class.open]="menuOpen">
     <div class="navbar-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Strona główna</a>
+      @if (authService.isLoggedIn()) {
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/cpus" routerLinkActive="active">Procesory</a>
+        <a routerLink="/manufacturers" routerLinkActive="active">Producenci</a>
+        <a routerLink="/technologies" routerLinkActive="active">Technologie</a>
+      }
     </div>
     <div class="navbar-auth">
-      <a routerLink="/login" routerLinkActive="active" class="btn btn-outline">Logowanie</a>
-      <a routerLink="/register" routerLinkActive="active" class="btn btn-primary">Rejestracja</a>
+      @if (authService.isLoggedIn()) {
+        <span class="user-info">{{ (authService.currentUser$ | async)?.username }}</span>
+        @if (tokenExpiresAt) {
+          <span 
+            class="token-expiry" 
+            [class.expiring]="isTokenExpiring"
+            [title]="'Token wygasa: ' + (tokenExpiresAt | date:'dd.MM.yyyy HH:mm:ss')"
+          >
+            Wygasa: {{ tokenExpiresAt | date:'dd.MM HH:mm' }}
+          </span>
+        }
+        <button class="btn btn-outline" (click)="logout()">Wyloguj</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active" class="btn btn-outline">Logowanie</a>
+        <a routerLink="/register" routerLinkActive="active" class="btn btn-primary">Rejestracja</a>
+      }
     </div>
   </div>
 </nav>

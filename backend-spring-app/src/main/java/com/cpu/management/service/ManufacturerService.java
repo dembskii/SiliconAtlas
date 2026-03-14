@@ -1,5 +1,6 @@
 package com.cpu.management.service;
 
+import com.cpu.management.domain.Cpu;
 import com.cpu.management.domain.Manufacturer;
 import com.cpu.management.dto.ManufacturerCreateDTO;
 import com.cpu.management.dto.ManufacturerDTO;
@@ -8,6 +9,9 @@ import com.cpu.management.mapper.EntityMapper;
 import com.cpu.management.repository.ManufacturerRepository;
 import com.cpu.management.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,12 +31,13 @@ public class ManufacturerService {
     private final ManufacturerRepository manufacturerRepository;
     private final EntityMapper entityMapper;
     private final KafkaProducerService kafkaProducerService;
+    private final CacheManager cacheManager;
 
     // =====================================================
     // METODY DTO - dla REST API
     // =====================================================
 
-    @CacheEvict(value = {"allManufacturers", "manufacturers"}, allEntries = true)
+    @CacheEvict(value = {"allManufacturers", "manufacturers", "manufacturerStats"}, allEntries = true)
     public ManufacturerDTO addManufacturer(ManufacturerCreateDTO manufacturerCreateDTO) {
         Manufacturer manufacturer = entityMapper.toManufacturerEntity(manufacturerCreateDTO);
         Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
@@ -68,12 +73,24 @@ public class ManufacturerService {
         return entityMapper.toManufacturerDTOList(manufacturers);
     }
 
-    @CacheEvict(value = {"allManufacturers", "manufacturers"}, key = "#id")
+    @Caching(evict = {
+            @CacheEvict(value = "manufacturers", key = "#id"),
+            @CacheEvict(value = "allManufacturers", key = "'allManufacturers'"),
+            @CacheEvict(value = "manufacturerStats", allEntries = true)
+    })
     public void deleteManufacturerById(UUID id) {
         Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(id);
         if (manufacturerOpt.isPresent()) {
             Manufacturer manufacturer = manufacturerOpt.get();
+            List<UUID> removedCpuIds = manufacturer.getCpus() == null
+                ? List.of()
+                : manufacturer.getCpus().stream()
+                    .map(Cpu::getId)
+                    .filter(cpuId -> cpuId != null)
+                    .toList();
+
             manufacturerRepository.deleteById(id);
+            evictRemovedCpuCaches(removedCpuIds);
             
             // Publish event to Kafka
             ManufacturerEventDTO event = ManufacturerEventDTO.builder()
@@ -92,7 +109,7 @@ public class ManufacturerService {
         }
     }
 
-    @CacheEvict(value = {"allManufacturers", "manufacturers"}, allEntries = true)
+    @CacheEvict(value = {"allManufacturers", "manufacturers", "manufacturerStats"}, allEntries = true)
     public ManufacturerDTO updateManufacturer(UUID id, ManufacturerCreateDTO manufacturerCreateDTO) {
         Optional<Manufacturer> manufacturerOpt = manufacturerRepository.findById(id);
         if (manufacturerOpt.isPresent()) {
@@ -162,5 +179,17 @@ public class ManufacturerService {
         List<Manufacturer> manufacturers = new ArrayList<>();
         manufacturerRepository.findAll().forEach(manufacturers::add);
         return manufacturers;
+    }
+
+    private void evictRemovedCpuCaches(List<UUID> removedCpuIds) {
+        Cache cpusCache = cacheManager.getCache("cpus");
+        if (cpusCache != null) {
+            removedCpuIds.forEach(cpusCache::evict);
+        }
+
+        Cache allCpusCache = cacheManager.getCache("allCpus");
+        if (allCpusCache != null) {
+            allCpusCache.evict("allCpus");
+        }
     }
 }

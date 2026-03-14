@@ -10,6 +10,7 @@ import com.cpu.management.repository.CpuBenchmarkRepository;
 import com.cpu.management.repository.CpuRepository;
 import com.cpu.management.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class CpuBenchmarkService {
     // PODSTAWOWE OPERACJE CRUD (zwracają DTO)
     // =====================================================
 
-    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, allEntries = true)
+    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu", "manufacturerStats"}, allEntries = true)
     public CpuBenchmarkDTO addBenchmark(CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         CpuBenchmark benchmark = entityMapper.toCpuBenchmarkEntity(benchmarkCreateDTO);
         CpuBenchmark savedBenchmark = cpuBenchmarkRepository.save(benchmark);
@@ -57,12 +58,19 @@ public class CpuBenchmarkService {
         return entityMapper.toCpuBenchmarkDTOList(benchmarks);
     }
 
-    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, key = "#id")
+    @Caching(evict = {
+            @CacheEvict(value = "benchmarks", key = "#id"),
+            @CacheEvict(value = "allBenchmarks", key = "'allBenchmarks'"),
+            @CacheEvict(value = "benchmarkStats", allEntries = true),
+            @CacheEvict(value = "benchmarkStatsByCpu", allEntries = true),
+            @CacheEvict(value = "manufacturerStats", allEntries = true),
+            @CacheEvict(value = "cpuRanking", allEntries = true)
+    })
     public void deleteBenchmarkById(UUID id) {
         cpuBenchmarkRepository.deleteById(id);
     }
 
-    @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu"}, allEntries = true)
+        @CacheEvict(value = {"allBenchmarks", "benchmarks", "benchmarkStats", "benchmarkStatsByCpu", "manufacturerStats"}, allEntries = true)
     public CpuBenchmarkDTO updateBenchmark(UUID id, CpuBenchmarkCreateDTO benchmarkCreateDTO) {
         Optional<CpuBenchmark> benchmarkOpt = cpuBenchmarkRepository.findById(id);
         if (benchmarkOpt.isPresent()) {

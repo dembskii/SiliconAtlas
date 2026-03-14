@@ -32,7 +32,7 @@ public class Cpu {
     @ManyToOne(fetch = FetchType.EAGER)
     private Manufacturer manufacturer;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private CpuSpecification specification;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "cpu", orphanRemoval = true)
