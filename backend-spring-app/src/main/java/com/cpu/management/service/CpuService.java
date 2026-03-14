@@ -61,8 +61,13 @@ public class CpuService {
         if (cpuRepository.findByModel(cpuCreateDTO.getModel()).isPresent()) {
             throw new DuplicateCpuModelException(cpuCreateDTO.getModel());
         }
+
         Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
+        cpu.setManufacturer(resolveManufacturerRequired(cpuCreateDTO.getManufacturerId()));
+        cpu.setTechnologies(resolveTechnologies(cpuCreateDTO.getTechnologyIds()));
+
         Cpu savedCpu = cpuRepository.save(cpu);
+        cpuRepository.flush();
         CpuDTO result = entityMapper.toCpuDTO(savedCpu);
         
         // Publikuj event do Kafki
@@ -159,7 +164,15 @@ public class CpuService {
         if (cpuCreateDTO.getFrequencyGhz() > 0) {
             existingCpu.setFrequencyGhz(cpuCreateDTO.getFrequencyGhz());
         }
+        if (cpuCreateDTO.getManufacturerId() != null) {
+            existingCpu.setManufacturer(resolveManufacturerRequired(cpuCreateDTO.getManufacturerId()));
+        }
+        if (cpuCreateDTO.getTechnologyIds() != null) {
+            existingCpu.setTechnologies(resolveTechnologies(cpuCreateDTO.getTechnologyIds()));
+        }
+
         Cpu savedCpu = cpuRepository.save(existingCpu);
+        cpuRepository.flush();
         CpuDTO result = entityMapper.toCpuDTO(savedCpu);
         
         // Publish event to Kafka
@@ -248,23 +261,11 @@ public class CpuService {
     }
 
     public Cpu createCpuWithManufacturerAndTechnologiesEntity(Cpu cpu, UUID manufacturerId, List<UUID> technologyIds) {
-        if (manufacturerId != null) {
-            Optional<Manufacturer> manufacturer = manufacturerRepository.findById(manufacturerId);
-            if (manufacturer.isEmpty()) {
-                throw new IllegalArgumentException("Manufacturer not found with id: " + manufacturerId);
-            }
-            cpu.setManufacturer(manufacturer.get());
-        }
-
-        if (technologyIds != null && !technologyIds.isEmpty()) {
-            List<Technology> technologies = new ArrayList<>();
-            for (UUID techId : technologyIds) {
-                technologyRepository.findById(techId).ifPresent(technologies::add);
-            }
-            cpu.setTechnologies(technologies);
-        }
+        cpu.setManufacturer(resolveManufacturerRequired(manufacturerId));
+        cpu.setTechnologies(resolveTechnologies(technologyIds));
 
         Cpu savedCpu = cpuRepository.save(cpu);
+        cpuRepository.flush();
         
         // Publish event to Kafka
         CpuEventDTO event = CpuEventDTO.builder()
@@ -296,24 +297,12 @@ public class CpuService {
      */
     public CpuDTO createCpuWithManufacturerAndTechnologies(CpuCreateDTO cpuCreateDTO) {
         Cpu cpu = entityMapper.toCpuEntity(cpuCreateDTO);
-        
-        if (cpuCreateDTO.getManufacturerId() != null) {
-            Optional<Manufacturer> manufacturer = manufacturerRepository.findById(cpuCreateDTO.getManufacturerId());
-            if (manufacturer.isEmpty()) {
-                throw new IllegalArgumentException("Manufacturer not found with id: " + cpuCreateDTO.getManufacturerId());
-            }
-            cpu.setManufacturer(manufacturer.get());
-        }
 
-        if (cpuCreateDTO.getTechnologyIds() != null && !cpuCreateDTO.getTechnologyIds().isEmpty()) {
-            List<Technology> technologies = new ArrayList<>();
-            for (UUID techId : cpuCreateDTO.getTechnologyIds()) {
-                technologyRepository.findById(techId).ifPresent(technologies::add);
-            }
-            cpu.setTechnologies(technologies);
-        }
+        cpu.setManufacturer(resolveManufacturerRequired(cpuCreateDTO.getManufacturerId()));
+        cpu.setTechnologies(resolveTechnologies(cpuCreateDTO.getTechnologyIds()));
 
         Cpu savedCpu = cpuRepository.save(cpu);
+        cpuRepository.flush();
         return entityMapper.toCpuDTO(savedCpu);
     }
 
@@ -480,6 +469,27 @@ public class CpuService {
         }
 
         return dto;
+    }
+
+    private Manufacturer resolveManufacturerRequired(UUID manufacturerId) {
+        if (manufacturerId == null) {
+            throw new IllegalArgumentException("manufacturerId is required to create or update CPU");
+        }
+
+        return manufacturerRepository.findById(manufacturerId)
+                .orElseThrow(() -> new IllegalArgumentException("Manufacturer not found with id: " + manufacturerId));
+    }
+
+    private List<Technology> resolveTechnologies(List<UUID> technologyIds) {
+        if (technologyIds == null || technologyIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Technology> technologies = new ArrayList<>();
+        for (UUID techId : technologyIds) {
+            technologyRepository.findById(techId).ifPresent(technologies::add);
+        }
+        return technologies;
     }
 
     // =====================================================
