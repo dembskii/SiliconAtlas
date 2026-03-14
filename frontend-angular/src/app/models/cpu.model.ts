@@ -21,6 +21,24 @@ export interface CpuCreate {
   specification?: CpuSpecificationCreate;
 }
 
+export interface CpuAiAutofillRequest {
+  cpuName: string;
+}
+
+export interface CpuAiAutofillResponse {
+  model: string;
+  cores: number;
+  threads: number;
+  frequencyGhz: number;
+  cacheL1KB: number;
+  cacheL2KB: number;
+  cacheL3MB: number;
+  tdpWatts: number;
+  socketType: string;
+  manufacturerName: string;
+  technologies: string[];
+}
+
 export interface CpuDetails {
   id: string;
   model: string;

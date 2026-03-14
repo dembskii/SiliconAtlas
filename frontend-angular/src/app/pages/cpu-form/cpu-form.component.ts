@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CpuService } from '../../services/cpu.service';
 import { ManufacturerService } from '../../services/manufacturer.service';
 import { TechnologyService } from '../../services/technology.service';
-import { CpuCreate } from '../../models/cpu.model';
+import { CpuAiAutofillResponse, CpuCreate } from '../../models/cpu.model';
 import { Manufacturer } from '../../models/manufacturer.model';
 import { Technology } from '../../models/technology.model';
 
@@ -35,7 +35,20 @@ import { Technology } from '../../models/technology.model';
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-slate-700 mb-1">Nazwa modelu</label>
+              <div class="mb-1 flex items-center justify-between gap-3">
+                <label class="block text-sm font-medium text-slate-700">Nazwa modelu</label>
+                @if (!isEdit) {
+                  <button
+                    type="button"
+                    (click)="autofillFromAi()"
+                    [disabled]="autofillLoading"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <mat-icon class="text-[16px] w-[16px] h-[16px]">auto_fix_high</mat-icon>
+                    {{ autofillLoading ? 'Uzupelniam...' : 'Autofill' }}
+                  </button>
+                }
+              </div>
               <input type="text" [(ngModel)]="model" name="model" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
             </div>
             <div>
@@ -123,6 +136,7 @@ export class CpuFormComponent implements OnInit {
   manufacturers: Manufacturer[] = [];
   technologies: Technology[] = [];
   errorMessage = '';
+  autofillLoading = false;
 
   model = '';
   cores: number | null = null;
@@ -186,6 +200,83 @@ export class CpuFormComponent implements OnInit {
 
   isTechSelected(id: string): boolean {
     return this.selectedTechnologyIds.includes(id);
+  }
+
+  autofillFromAi(): void {
+    const cpuName = this.model.trim();
+    if (!cpuName) {
+      this.errorMessage = 'Podaj nazwe modelu, aby uzyc Autofill';
+      return;
+    }
+
+    this.errorMessage = '';
+    this.autofillLoading = true;
+
+    this.cpuService.autofillWithAi(cpuName).subscribe({
+      next: (response) => {
+        this.applyAutofill(response);
+        this.autofillLoading = false;
+      },
+      error: () => {
+        this.autofillLoading = false;
+        this.errorMessage = 'Nie udalo sie pobrac danych z AI';
+      }
+    });
+  }
+
+  private applyAutofill(response: CpuAiAutofillResponse): void {
+    this.model = response.model?.trim() || this.model;
+    this.cores = this.toRequiredNumberOrNull(response.cores);
+    this.threads = this.toRequiredNumberOrNull(response.threads);
+    this.frequencyGhz = this.toRequiredNumberOrNull(response.frequencyGhz);
+
+    this.cacheL1KB = this.toOptionalNumberOrNull(response.cacheL1KB);
+    this.cacheL2KB = this.toOptionalNumberOrNull(response.cacheL2KB);
+    this.cacheL3MB = this.toOptionalNumberOrNull(response.cacheL3MB);
+    this.tdpWatts = this.toOptionalNumberOrNull(response.tdpWatts);
+    this.socketType = (response.socketType || '').trim();
+
+    this.manufacturerId = this.findManufacturerIdByName(response.manufacturerName);
+    this.selectedTechnologyIds = this.findTechnologyIdsByNames(response.technologies);
+  }
+
+  private findManufacturerIdByName(name: string | null | undefined): string | null {
+    const normalized = this.normalizeName(name);
+    if (!normalized) {
+      return null;
+    }
+
+    const match = this.manufacturers.find(m => this.normalizeName(m.name) === normalized);
+    return match ? match.id : null;
+  }
+
+  private findTechnologyIdsByNames(names: string[] | null | undefined): string[] {
+    if (!names || names.length === 0) {
+      return [];
+    }
+
+    const incoming = new Set(names.map(name => this.normalizeName(name)).filter(Boolean));
+    return this.technologies
+      .filter(tech => incoming.has(this.normalizeName(tech.name)))
+      .map(tech => tech.id);
+  }
+
+  private normalizeName(value: string | null | undefined): string {
+    return (value || '').trim().toLowerCase();
+  }
+
+  private toRequiredNumberOrNull(value: number | null | undefined): number | null {
+    if (value === null || value === undefined || value <= 0) {
+      return null;
+    }
+    return value;
+  }
+
+  private toOptionalNumberOrNull(value: number | null | undefined): number | null {
+    if (value === null || value === undefined || value <= 0) {
+      return null;
+    }
+    return value;
   }
 
   onSubmit(): void {
