@@ -24,6 +24,30 @@ export class AuthService {
     }
   }
 
+  initializeSession(): void {
+    const token = this.getToken();
+    const refreshToken = this.getRefreshToken();
+    const hasUser = !!this.currentUserSubject.value;
+
+    if (!token || !refreshToken || !hasUser) {
+      return;
+    }
+
+    if (!this.isTokenExpired()) {
+      return;
+    }
+
+    this.refreshToken().subscribe({
+      next: () => {
+        console.log('Startup session refresh successful');
+      },
+      error: (error) => {
+        console.error('Startup session refresh failed. Clearing stale auth state.', error);
+        this.clearAuthData();
+      }
+    });
+  }
+
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
       tap(response => this.handleAuth(response))
@@ -56,10 +80,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    this.currentUserSubject.next(null);
+    this.clearAuthData();
     this.router.navigate(['/login']);
   }
 
@@ -73,7 +94,17 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     const token = this.getToken();
-    return !!token && !this.isTokenExpired();
+    if (!token) {
+      return false;
+    }
+
+    if (!this.isTokenExpired()) {
+      return true;
+    }
+
+    // Treat session as authenticated when user data and refresh token exist.
+    // Protected routes/requests still enforce refresh and can invalidate session.
+    return !!this.currentUserSubject.value && !!this.getRefreshToken();
   }
 
   isTokenExpired(): boolean {
@@ -117,6 +148,13 @@ export class AuthService {
 
   get currentUser(): UserResponse | null {
     return this.currentUserSubject.value;
+  }
+
+  private clearAuthData(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    this.currentUserSubject.next(null);
   }
 
   private handleAuth(response: AuthResponse): void {

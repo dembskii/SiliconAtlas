@@ -53,6 +53,11 @@ import { AuthService } from '../../services/auth.service';
                 {{ loading ? 'Logowanie...' : 'Zaloguj sie' }}
               </button>
             </div>
+
+            <p class="text-center text-sm text-slate-600">
+              Nie masz konta?
+              <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-700">Zarejestruj sie</a>
+            </p>
           </form>
         </div>
       </div>

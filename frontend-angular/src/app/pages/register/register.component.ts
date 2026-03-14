@@ -51,6 +51,11 @@ import { AuthService } from '../../services/auth.service';
             <button type="submit" [disabled]="loading" class="w-full py-2.5 px-4 rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
               {{ loading ? 'Rejestracja...' : 'Zarejestruj sie' }}
             </button>
+
+            <p class="text-center text-sm text-slate-600">
+              Masz juz konto?
+              <a routerLink="/login" class="font-medium text-blue-600 hover:text-blue-700">Zaloguj sie</a>
+            </p>
           </form>
         </div>
       </div>

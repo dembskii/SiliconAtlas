@@ -14,10 +14,10 @@
     <div class="navbar-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Strona główna</a>
       @if (authService.isLoggedIn()) {
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/cpus" routerLinkActive="active">Procesory</a>
-        <a routerLink="/manufacturers" routerLinkActive="active">Producenci</a>
-        <a routerLink="/technologies" routerLinkActive="active">Technologie</a>
+        <a routerLink="/app" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
+        <a routerLink="/app/cpu" routerLinkActive="active">Procesory</a>
+        <a routerLink="/app/manufacturers" routerLinkActive="active">Producenci</a>
+        <a routerLink="/app/technologies" routerLinkActive="active">Technologie</a>
       }
     </div>
     <div class="navbar-auth">
