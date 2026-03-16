@@ -196,14 +196,43 @@ export class WebSocketNotificationsService {
       return new Date().toISOString();
     }
 
-    const hasTimeZone = /([zZ]|[+-]\d{2}:\d{2})$/.test(ts);
-    if (hasTimeZone) {
+    if (this.hasExplicitTimezone(ts)) {
       const parsed = Date.parse(ts);
-      return Number.isNaN(parsed) ? new Date().toISOString() : new Date(parsed).toISOString();
+      if (!Number.isNaN(parsed)) {
+        return new Date(parsed).toISOString();
+      }
     }
 
-    // Keep timezone-less timestamps untouched (backend LocalDateTime) to avoid hour shifts.
-    return ts;
+    const parsedUtc = this.parseUtcDateTime(ts);
+    if (parsedUtc !== null) {
+      return new Date(parsedUtc).toISOString();
+    }
+
+    return new Date().toISOString();
+  }
+
+  private hasExplicitTimezone(value: string): boolean {
+    return /([zZ]|[+-]\d{2}:\d{2})$/.test(value);
+  }
+
+  private parseUtcDateTime(value: string): number | null {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/);
+    if (!match) {
+      return null;
+    }
+
+    const [, year, month, day, hour, minute, second, millisecond] = match;
+    const epoch = Date.UTC(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second ?? '0'),
+      Number((millisecond ?? '0').padEnd(3, '0'))
+    );
+
+    return Number.isNaN(epoch) ? null : epoch;
   }
 
   private resolvePrimaryLabel(source: NotificationSource, payload: unknown): string {

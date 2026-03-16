@@ -99,14 +99,12 @@ export class NotificationStoreService {
     return [...items]
       .filter((item) => item.source !== 'system')
       .filter((item) => {
-        const ts = Date.parse(item.timestamp);
-        if (!Number.isNaN(ts)) {
+        const ts = this.toEpochMs(item.timestamp);
+        if (ts > 0) {
           return ts >= ttlBoundary;
         }
 
-        // Treat timezone-less timestamps as local datetime strings.
-        const localTs = this.parseLocalDateTime(item.timestamp);
-        return localTs !== null && localTs >= ttlBoundary;
+        return false;
       })
       .sort((a, b) => this.toEpochMs(b.timestamp) - this.toEpochMs(a.timestamp))
       .slice(0, NotificationStoreService.MAX_ITEMS);
@@ -122,32 +120,38 @@ export class NotificationStoreService {
   }
 
   private toEpochMs(value: string): number {
-    const parsed = Date.parse(value);
-    if (!Number.isNaN(parsed)) {
-      return parsed;
+    if (this.hasExplicitTimezone(value)) {
+      const parsed = Date.parse(value);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
     }
 
-    const local = this.parseLocalDateTime(value);
-    return local ?? 0;
+    const utc = this.parseUtcDateTime(value);
+    return utc ?? 0;
   }
 
-  private parseLocalDateTime(value: string): number | null {
-    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+  private hasExplicitTimezone(value: string): boolean {
+    return /([zZ]|[+-]\d{2}:\d{2})$/.test(value);
+  }
+
+  private parseUtcDateTime(value: string): number | null {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/);
     if (!match) {
       return null;
     }
 
-    const [, year, month, day, hour, minute, second] = match;
-    const date = new Date(
+    const [, year, month, day, hour, minute, second, millisecond] = match;
+    const epoch = Date.UTC(
       Number(year),
       Number(month) - 1,
       Number(day),
       Number(hour),
       Number(minute),
-      Number(second ?? '0')
+      Number(second ?? '0'),
+      Number((millisecond ?? '0').padEnd(3, '0'))
     );
 
-    const epoch = date.getTime();
     return Number.isNaN(epoch) ? null : epoch;
   }
 

@@ -16,6 +16,15 @@ import { WebSocketNotificationsService } from '../../services/websocket-notifica
   styleUrl: './log-console.component.scss'
 })
 export class LogConsoleComponent implements OnInit, OnDestroy {
+  private static readonly TIMESTAMP_FORMATTER = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
   expanded = true;
   search = '';
 
@@ -51,21 +60,12 @@ export class LogConsoleComponent implements OnInit, OnDestroy {
   }
 
   formatTimestamp(isoString: string): string {
-    const localDateTime = isoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
-    if (localDateTime) {
-      const [, year, month, day, hour, minute, second] = localDateTime;
-      const date = new Date(
-        Number(year),
-        Number(month) - 1,
-        Number(day),
-        Number(hour),
-        Number(minute),
-        Number(second ?? '0')
-      );
-      return date.toLocaleString();
+    const epochMs = this.toEpochMs(isoString);
+    if (epochMs <= 0) {
+      return isoString;
     }
 
-    return new Date(isoString).toLocaleString();
+    return LogConsoleComponent.TIMESTAMP_FORMATTER.format(new Date(epochMs));
   }
 
   get filteredNotifications(): NotificationItem[] {
@@ -83,24 +83,31 @@ export class LogConsoleComponent implements OnInit, OnDestroy {
   }
 
   private toEpochMs(value: string): number {
-    const parsed = Date.parse(value);
-    if (!Number.isNaN(parsed)) {
-      return parsed;
+    if (this.hasExplicitTimezone(value)) {
+      const parsed = Date.parse(value);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
     }
 
-    const localDateTime = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    const localDateTime = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/);
     if (!localDateTime) {
       return 0;
     }
 
-    const [, year, month, day, hour, minute, second] = localDateTime;
-    return new Date(
+    const [, year, month, day, hour, minute, second, millisecond] = localDateTime;
+    return Date.UTC(
       Number(year),
       Number(month) - 1,
       Number(day),
       Number(hour),
       Number(minute),
-      Number(second ?? '0')
-    ).getTime();
+      Number(second ?? '0'),
+      Number((millisecond ?? '0').padEnd(3, '0'))
+    );
+  }
+
+  private hasExplicitTimezone(value: string): boolean {
+    return /([zZ]|[+-]\d{2}:\d{2})$/.test(value);
   }
 }
