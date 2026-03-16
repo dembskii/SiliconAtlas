@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
+import { LogConsoleComponent } from '../log-console/log-console.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, LogConsoleComponent],
   template: `
     <div class="min-h-screen flex flex-col bg-slate-50">
       <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
@@ -34,9 +35,11 @@ import { AuthService } from '../../services/auth.service';
         </div>
       </header>
 
-      <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-96">
         <router-outlet></router-outlet>
       </main>
+
+      <app-log-console></app-log-console>
     </div>
   `
 })
