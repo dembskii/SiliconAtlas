@@ -49,6 +49,7 @@ public class EntityMapper {
         cpu.setCores(dto.getCores());
         cpu.setThreads(dto.getThreads());
         cpu.setFrequencyGhz(dto.getFrequencyGhz());
+        cpu.setSpecification(toCpuSpecificationEntity(dto.getSpecification()));
         return cpu;
     }
 

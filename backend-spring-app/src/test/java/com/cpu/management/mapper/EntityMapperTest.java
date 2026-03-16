@@ -83,6 +83,35 @@ class EntityMapperTest {
     }
 
     @Test
+    void shouldMapCpuCreateDTOToEntityWithSpecification() {
+        CpuSpecificationCreateDTO specificationDTO = CpuSpecificationCreateDTO.builder()
+                .cacheL1KB(512)
+                .cacheL2KB(2048)
+                .cacheL3MB(12)
+                .tdpWatts(95)
+                .socketType("LGA 1151")
+                .build();
+
+        CpuCreateDTO dto = CpuCreateDTO.builder()
+                .model("Intel Core i7-9700K")
+                .cores(8)
+                .threads(8)
+                .frequencyGhz(3.6)
+                .specification(specificationDTO)
+                .build();
+
+        Cpu cpu = entityMapper.toCpuEntity(dto);
+
+        assertNotNull(cpu);
+        assertNotNull(cpu.getSpecification());
+        assertEquals(512, cpu.getSpecification().getCacheL1KB());
+        assertEquals(2048, cpu.getSpecification().getCacheL2KB());
+        assertEquals(12, cpu.getSpecification().getCacheL3MB());
+        assertEquals(95, cpu.getSpecification().getTdpWatts());
+        assertEquals("LGA 1151", cpu.getSpecification().getSocketType());
+    }
+
+    @Test
     void shouldReturnNullForNullCpuCreateDTO() {
         assertNull(entityMapper.toCpuEntity(null));
     }

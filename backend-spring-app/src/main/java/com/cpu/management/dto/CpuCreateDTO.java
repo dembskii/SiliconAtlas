@@ -17,4 +17,5 @@ public class CpuCreateDTO {
     private double frequencyGhz;
     private UUID manufacturerId;
     private List<UUID> technologyIds;
+    private CpuSpecificationCreateDTO specification;
 }

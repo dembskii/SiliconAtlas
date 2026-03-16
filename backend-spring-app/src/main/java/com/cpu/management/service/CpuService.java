@@ -175,6 +175,9 @@ public class CpuService {
         if (cpuCreateDTO.getTechnologyIds() != null) {
             existingCpu.setTechnologies(resolveTechnologies(cpuCreateDTO.getTechnologyIds()));
         }
+        if (cpuCreateDTO.getSpecification() != null) {
+            existingCpu.setSpecification(entityMapper.toCpuSpecificationEntity(cpuCreateDTO.getSpecification()));
+        }
 
         Cpu savedCpu = cpuRepository.save(existingCpu);
         cpuRepository.flush();
