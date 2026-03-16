@@ -51,20 +51,56 @@ export class LogConsoleComponent implements OnInit, OnDestroy {
   }
 
   formatTimestamp(isoString: string): string {
+    const localDateTime = isoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (localDateTime) {
+      const [, year, month, day, hour, minute, second] = localDateTime;
+      const date = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hour),
+        Number(minute),
+        Number(second ?? '0')
+      );
+      return date.toLocaleString();
+    }
+
     return new Date(isoString).toLocaleString();
   }
 
   get filteredNotifications(): NotificationItem[] {
     const query = this.search.trim().toLowerCase();
-    if (!query) {
-      return this.notifications;
-    }
-    return this.notifications.filter((notification) => {
+    const filtered = !query ? this.notifications : this.notifications.filter((notification) => {
       return (
         notification.message.toLowerCase().includes(query) ||
         notification.eventType.toLowerCase().includes(query) ||
         notification.source.toLowerCase().includes(query)
       );
     });
+
+    // Show newest notifications at the bottom.
+    return [...filtered].sort((a, b) => this.toEpochMs(a.timestamp) - this.toEpochMs(b.timestamp));
+  }
+
+  private toEpochMs(value: string): number {
+    const parsed = Date.parse(value);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+
+    const localDateTime = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!localDateTime) {
+      return 0;
+    }
+
+    const [, year, month, day, hour, minute, second] = localDateTime;
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second ?? '0')
+    ).getTime();
   }
 }

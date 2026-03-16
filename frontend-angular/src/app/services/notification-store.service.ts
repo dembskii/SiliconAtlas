@@ -53,6 +53,10 @@ export class NotificationStoreService {
   }
 
   add(draft: NotificationDraft): void {
+    if (draft.source === 'system') {
+      return;
+    }
+
     const item: NotificationItem = {
       id: this.generateId(),
       source: draft.source,
@@ -61,6 +65,16 @@ export class NotificationStoreService {
       timestamp: draft.timestamp ?? new Date().toISOString(),
       raw: draft.raw
     };
+
+    const duplicate = this.notificationsSubject.value.some((existing) => {
+      const sameEventId = this.extractEventId(existing.raw) !== null && this.extractEventId(existing.raw) === this.extractEventId(item.raw);
+      const samePayload = existing.eventType === item.eventType && existing.message === item.message && existing.timestamp === item.timestamp;
+      return sameEventId || samePayload;
+    });
+
+    if (duplicate) {
+      return;
+    }
 
     const next = this.pruneList([item, ...this.notificationsSubject.value]);
     this.notificationsSubject.next(next);
@@ -83,12 +97,58 @@ export class NotificationStoreService {
     const ttlBoundary = now - NotificationStoreService.TTL_MS;
 
     return [...items]
+      .filter((item) => item.source !== 'system')
       .filter((item) => {
         const ts = Date.parse(item.timestamp);
-        return !Number.isNaN(ts) && ts >= ttlBoundary;
+        if (!Number.isNaN(ts)) {
+          return ts >= ttlBoundary;
+        }
+
+        // Treat timezone-less timestamps as local datetime strings.
+        const localTs = this.parseLocalDateTime(item.timestamp);
+        return localTs !== null && localTs >= ttlBoundary;
       })
-      .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+      .sort((a, b) => this.toEpochMs(b.timestamp) - this.toEpochMs(a.timestamp))
       .slice(0, NotificationStoreService.MAX_ITEMS);
+  }
+
+  private extractEventId(raw: unknown): string | null {
+    if (!raw || typeof raw !== 'object') {
+      return null;
+    }
+
+    const eventId = (raw as Record<string, unknown>)['eventId'];
+    return typeof eventId === 'string' && eventId.length > 0 ? eventId : null;
+  }
+
+  private toEpochMs(value: string): number {
+    const parsed = Date.parse(value);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+
+    const local = this.parseLocalDateTime(value);
+    return local ?? 0;
+  }
+
+  private parseLocalDateTime(value: string): number | null {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!match) {
+      return null;
+    }
+
+    const [, year, month, day, hour, minute, second] = match;
+    const date = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second ?? '0')
+    );
+
+    const epoch = date.getTime();
+    return Number.isNaN(epoch) ? null : epoch;
   }
 
   private persist(items: NotificationItem[]): void {

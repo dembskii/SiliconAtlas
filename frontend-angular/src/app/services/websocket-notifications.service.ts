@@ -39,7 +39,6 @@ export class WebSocketNotificationsService {
 
     this.started = true;
     this.notificationStore.prune();
-    this.addSystemNotification('WS_STARTED', 'Notifications service started');
     this.syncConnectionState();
   }
 
@@ -56,7 +55,6 @@ export class WebSocketNotificationsService {
     this.isConnected = false;
 
     currentClient.deactivate();
-    this.addSystemNotification('WS_DISCONNECTED', 'Disconnected');
   }
 
   private syncConnectionState(): void {
@@ -82,7 +80,6 @@ export class WebSocketNotificationsService {
 
     const token = this.authService.getToken();
     if (!token) {
-      this.addSystemNotification('WS_SKIPPED', 'Missing access token, skipping connect');
       return;
     }
 
@@ -98,26 +95,21 @@ export class WebSocketNotificationsService {
       onConnect: () => {
         this.isConnected = true;
         this.reconnectAttempt = 0;
-        this.addSystemNotification('WS_CONNECTED', 'Connected');
         this.subscribeToTopics();
       },
       onStompError: (frame) => {
         this.isConnected = false;
-        this.addSystemNotification('WS_STOMP_ERROR', `STOMP error: ${frame.headers['message'] ?? 'Unknown error'}`);
         this.scheduleReconnect('stomp-error');
       },
       onWebSocketClose: () => {
         this.isConnected = false;
-        this.addSystemNotification('WS_CLOSED', 'Connection closed');
         this.scheduleReconnect('socket-close');
       },
       onWebSocketError: () => {
         this.isConnected = false;
-        this.addSystemNotification('WS_TRANSPORT_ERROR', 'Transport error');
       }
     });
 
-    this.addSystemNotification('WS_CONNECTING', `Connecting to ${wsUrl}`);
     this.client.activate();
   }
 
@@ -129,7 +121,6 @@ export class WebSocketNotificationsService {
     this.client.subscribe('/topic/cpu-events', (message) => this.handleMessage('cpu', message));
     this.client.subscribe('/topic/technology-events', (message) => this.handleMessage('technology', message));
     this.client.subscribe('/topic/manufacturer-events', (message) => this.handleMessage('manufacturer', message));
-    this.client.subscribe('/topic/all-events', (message) => this.handleMessage('all', message));
   }
 
   private handleMessage(source: NotificationSource, message: IMessage): void {
@@ -164,11 +155,6 @@ export class WebSocketNotificationsService {
     const delay = Math.min(
       1000 * Math.pow(2, this.reconnectAttempt - 1),
       WebSocketNotificationsService.RECONNECT_MAX_DELAY_MS
-    );
-
-    this.addSystemNotification(
-      'WS_RECONNECT_SCHEDULED',
-      `Reconnect in ${delay}ms (attempt ${this.reconnectAttempt}, reason: ${reason})`
     );
 
     this.reconnectTimer = setTimeout(() => {
@@ -206,10 +192,18 @@ export class WebSocketNotificationsService {
 
   private resolveTimestamp(payload: unknown): string {
     const ts = this.stringField(payload, 'timestamp');
-    if (ts && !Number.isNaN(Date.parse(ts))) {
-      return new Date(ts).toISOString();
+    if (!ts) {
+      return new Date().toISOString();
     }
-    return new Date().toISOString();
+
+    const hasTimeZone = /([zZ]|[+-]\d{2}:\d{2})$/.test(ts);
+    if (hasTimeZone) {
+      const parsed = Date.parse(ts);
+      return Number.isNaN(parsed) ? new Date().toISOString() : new Date(parsed).toISOString();
+    }
+
+    // Keep timezone-less timestamps untouched (backend LocalDateTime) to avoid hour shifts.
+    return ts;
   }
 
   private resolvePrimaryLabel(source: NotificationSource, payload: unknown): string {
@@ -233,14 +227,5 @@ export class WebSocketNotificationsService {
 
     const value = (payload as Record<string, unknown>)[key];
     return typeof value === 'string' ? value : null;
-  }
-
-  private addSystemNotification(eventType: string, message: string): void {
-    this.notificationStore.add({
-      source: 'system',
-      eventType,
-      message,
-      timestamp: new Date().toISOString()
-    });
   }
 }
